@@ -1,2 +1,2 @@
-# dse
-dependability simulation engine
+# DSE
+Dependability Simulation Engine
