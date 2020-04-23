@@ -1,26 +1,40 @@
 from failure import Repairable
+from utils import lottery
 
 class State:
-	def __init__(self,nname,ttransitions,ssojourn,aaction):
-		self.
+	def __init__(self,ttransitions,ssojourn,aaction):
+		self.sojourn = ssojourn
+		self.action = aaction
+		self.transitions = ttransitions
+
+	def getAction(self):
+		return self.action
 		
+	def getSojourn(self):
+		return self.sojourn
+
+	def getNext(self):
+		probs = list(map(lambda x: x[1],self.transitions))
+		index = lottery(probs)
+		nextState = self.transitions[index][0]
+		return nextState
 
 
 class StateBasedItem(Repairable):
 	def __init__(self,eenv,qqueue,nname,ffProb,mmttr):
 		super().__init__(eenv,qqueue,nname,ffProb,mmttr)
 		self.stateMachine = self.populate()
-		self.currentState = self.reset()
+		self.current = self.reset()
 		self.env.process(self.run())
 
 	def do(self):
-		self.log(' has done @' + str(self.env.now))
-		yield self.env.process(self.wait()) 
-	
-	def wait(self):
-		self.log(' started waiting @' + str(self.env.now))
-		yield self.env.timeout(self.time) 
-		self.log(' finished waiting @' + str(self.env.now))
+		nextstate = self.stateMachine[self.current].getNext()
+		self.log(' starting from ' +  self.current + ' to ' + nextstate + ' @' + str(self.env.now))
+		time = self.stateMachine[nextstate].getSojourn()
+		yield self.env.timeout(time) 
+		self.stateMachine[nextstate].getAction()()
+		self.current = nextstate
+		self.log(' ending from ' +  self.current + ' to ' + nextstate + ' @' + str(self.env.now))
 
 	def run(self):
 		while True:

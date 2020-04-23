@@ -1,6 +1,7 @@
 import random
 import time
 from logging import Loggable
+import inspect
 
 class Repairable(Loggable):
 	def __init__(self,eenv,qqueue,nname,ffProb,mmttr):
@@ -22,4 +23,4 @@ class Repairable(Loggable):
 			self.fail()
 			yield self.env.process(self.repair()) 
 		else:
-			self.do()
+			yield self.env.process(self.do())

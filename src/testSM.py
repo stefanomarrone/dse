@@ -5,7 +5,7 @@ import os
 import multiprocessing
 from pydispatch import dispatcher
 from logging import Logger
-from element import SimpleElement
+from gate import Gate
 
 def makeLogger(l,q):
 	logger = Logger(l,q)
@@ -20,8 +20,7 @@ def makeLogging(logname):
 def main(fname,stop):
 	env = simpy.Environment()
 	sendqueue = makeLogging(fname)
-	SimpleElement(env,sendqueue,'GA',10,0.05,100)
-	SimpleElement(env,sendqueue,'GB',7,0.05,50)
+	Gate(env,sendqueue,'GA',0.05,100)
 	env.run(until=stop)
 	sendqueue.put('HALT')
 
