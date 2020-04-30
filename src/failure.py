@@ -1,7 +1,5 @@
 import random
-import time
 from logging import Loggable
-import inspect
 
 class Repairable(Loggable):
 	def __init__(self,eenv,qqueue,nname,ffProb,mmttr):

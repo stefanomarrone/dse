@@ -1,4 +1,3 @@
-from multiprocessing import Process
 import datetime
 import time
 
@@ -12,9 +11,8 @@ class Loggable():
 		self.queue.put(tosend)
 
 class Logger:
-	def __init__(self,ffilename,qqueue):
+	def __init__(self,qqueue):
 		self.queue = qqueue
-		self.fhandle = open(ffilename,'a')
 		self.running = True
 
 	def manage(self,message):
@@ -25,11 +23,10 @@ class Logger:
 
 	def log(self,message):
 		st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-		self.fhandle.write(st + '\t' + message + '\n')
+		print(st + '\t' + message)
 
 	def run(self):
 		while (self.running == True):
 			m = self.queue.get()
 			self.manage(m)
-		self.fhandle.close()
 

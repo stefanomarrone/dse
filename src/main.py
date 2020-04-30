@@ -3,7 +3,6 @@ import simpy
 import sys
 import os
 import multiprocessing
-from pydispatch import dispatcher
 from logging import Logger
 from element import SimpleElement
 
