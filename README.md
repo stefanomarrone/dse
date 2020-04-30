@@ -1,4 +1,4 @@
 # DSE
 Dependability Simulation Engine
 
-(work in progress....)
+(work in progress...)
