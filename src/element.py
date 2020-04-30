@@ -1,6 +1,6 @@
-from failure import Repairable
+from failure import TooSimpleRepairable
 
-class SimpleElement(Repairable):
+class SimpleElement(TooSimpleRepairable):
 	def __init__(self,eenv,qqueue,nname,ttime,ffProb,mmttr):
 		super().__init__(eenv,qqueue,nname,ffProb,mmttr)
 		self.time = ttime
@@ -18,3 +18,5 @@ class SimpleElement(Repairable):
 	def run(self):
 		while True:
 			yield self.env.process(self.step())
+
+

@@ -2,7 +2,7 @@ import simpy
 import sys
 import os
 import multiprocessing
-from logging import Logger
+from log import Logger
 from gate import Gate
 
 def makeLogger(q):

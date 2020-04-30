@@ -3,7 +3,7 @@ import simpy
 import sys
 import os
 import multiprocessing
-from logging import Logger
+from log import Logger
 from element import SimpleElement
 
 def makeLogger(l,q):

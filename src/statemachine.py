@@ -1,4 +1,4 @@
-from failure import Repairable
+from failure import TooSimpleRepairable
 from utils import lottery
 
 class State:
@@ -20,7 +20,7 @@ class State:
 		return nextState
 
 
-class StateBasedItem(Repairable):
+class StateBasedItem(TooSimpleRepairable):
 	def __init__(self,eenv,qqueue,nname,ffProb,mmttr):
 		super().__init__(eenv,qqueue,nname,ffProb,mmttr)
 		self.stateMachine = self.populate()
