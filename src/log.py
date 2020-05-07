@@ -13,7 +13,7 @@ class Loggable():
 
     def log(self, message):
         #tosend = '@' + str(self.env.now) + '\t' + self.name + message
-        tosend = str(self.env.now) + ';' + self.name + ';' + message[1:] + ';'
+        tosend = str(self.env.now) + ';' + self.name + ';' + message
         self.queue.put(tosend)
 
 

@@ -32,22 +32,19 @@ class Component(Loggable):
         yield self.env.timeout(guess)
 
     def faultPropagation(self,cause=''):
-        message = ' is breaking '
+        message = 'is breaking;'
         for sub in self.subcomponents:
             candidate = sub.getName()
             if (candidate != cause):
-                #self.log(message + sub.getName() + " @" + str(self.env.now))
-                self.log(message + sub.getName())
+                self.log(message + sub.getName() + ';')
                 sub.process.interrupt(self.getName())
         if (self.owner is not None) and (self.owner.getName() != cause):
-            self.log(message + self.owner.getName())
-            #self.log(message + self.owner.getName() + " @" + str(self.env.now))
+            self.log(message + self.owner.getName() + ';')
             self.owner.process.interrupt(self.getName())
 
     def repairPropagation(self):
         for sub in self.subcomponents:
-            self.log(' is restoring ' + sub.getName())
-            #self.log(' is restoring ' + sub.getName() + " @" + str(self.env.now))
+            self.log('is restoring;' + sub.getName() + ';')
             sub.process.interrupt(self.getName())
 
     def fail(self):
@@ -59,16 +56,13 @@ class Component(Loggable):
     def run(self):
         while True:
             faultCause = ''
-            self.log(' is working')
-            #self.log(' is working @' + str(self.env.now))
+            self.log('is working;;')
             try:
                 yield self.env.process(self.fail())
-                self.log(' has failed by itself')
-                #self.log(' has failed by itself @ ' + str(self.env.now))
+                self.log('has failed by itself;;')
             except simpy.Interrupt as i:
                 faultCause = i.cause
-                self.log(' is interrupted by ' + faultCause)
-                #self.log(' is interrupted by ' + faultCause + ' @' + str(self.env.now))
+                self.log('is interrupted by;' + faultCause + ';')
             finally:
                 self.faultPropagation(faultCause)
             try:
@@ -76,7 +70,5 @@ class Component(Loggable):
             except simpy.Interrupt as i:
                 pass
             finally:
-                #self.log(' has been repaired @ ' + str(self.env.now))
-                self.log(' has been repaired')
+                self.log('has been repaired;;')
                 self.repairPropagation()
-        print('ciaociao')
