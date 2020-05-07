@@ -1,5 +1,5 @@
-from failure import TooSimpleRepairable
-from utils import lottery
+from component import Component
+import utils
 
 class State:
 	def __init__(self,ttransitions,ssojourn,aaction):
@@ -15,19 +15,19 @@ class State:
 
 	def getNext(self):
 		probs = list(map(lambda x: x[1],self.transitions))
-		index = lottery(probs)
+		index = utils.lottery(probs)
 		nextState = self.transitions[index][0]
 		return nextState
 
 
-class StateBasedItem(TooSimpleRepairable):
+class StateBasedItem(Component):
 	def __init__(self,eenv,qqueue,nname,ffProb,mmttr):
 		super().__init__(eenv,qqueue,nname,ffProb,mmttr)
 		self.stateMachine = self.populate()
 		self.current = self.reset()
 		self.env.process(self.run())
 
-	def do(self):
+	def step(self):
 		nextstate = self.stateMachine[self.current].getNext()
 		self.log(' starting from ' +  self.current + ' to ' + nextstate + ' @' + str(self.env.now))
 		time = self.stateMachine[nextstate].getSojourn()
@@ -35,7 +35,3 @@ class StateBasedItem(TooSimpleRepairable):
 		self.stateMachine[nextstate].getAction()()
 		self.current = nextstate
 		self.log(' ending from ' +  self.current + ' to ' + nextstate + ' @' + str(self.env.now))
-
-	def run(self):
-		while True:
-			yield self.env.process(self.step())
