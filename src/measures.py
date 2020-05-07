@@ -1,5 +1,3 @@
-import datetime
-import time
 import csv
 import functools
 
@@ -15,8 +13,8 @@ class Metric():
         pass
 
 
-class Dowtime(Metric):
-    def __init__(self, nname, ddownStartEvent, uupStartEvent, eelement):
+class Downtime(Metric):
+    def __init__(self, nname, eelement, uupStartEvent, ddownStartEvent):
         super().__init__(nname)
         self.uptimes = list()
         self.downtimes = list()
@@ -36,8 +34,8 @@ class Dowtime(Metric):
                     temp = float(row[0]) - temp
                     self.downtimes.append(temp)
                     temp = float(row[0])
-        self.uptimes = filter(lambda t: t != 0, self.uptimes)
-        self.downtimes = filter(lambda t: t != 0, self.downtimes)
+        self.uptimes = list(filter(lambda t: t != 0, self.uptimes))
+        self.downtimes = list(filter(lambda t: t != 0, self.downtimes))
 
     def report(self):
         retval = 'Metric: ' + self.name + '\n'
@@ -46,7 +44,7 @@ class Dowtime(Metric):
         down = sum(self.downtimes)
         retval += 'Downtime = ' + str(down) + '\n'
         retval += 'Availability = ' + str(up / (up + down)) + '\n'
-
+        return retval
 
 
 class MetricAnalyser:
@@ -57,11 +55,13 @@ class MetricAnalyser:
         self.metrics.append(metric)
 
     def compute(self, csvfilename):
-        csvHandle = csv.open(csvfilename)
-        map(lambda m: m.compute(csvHandle),self.metrics)
-        csvHandle.close()
+        csvhandle = open(csvfilename)
+        csvReader = csv.reader(csvhandle,delimiter=';')
+        for m in self.metrics:
+            m.compute(csvReader)
 
     def report(self):
-        reports = map(lambda m: report(),self.metrics)
-        report = functools.reduce(lambda x,y: x + y, reports)
-        return report
+        retval = ''
+        for m in self.metrics:
+            retval += str(m.report())
+        return retval
