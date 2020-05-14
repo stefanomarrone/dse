@@ -1,11 +1,13 @@
+#!/home/stefano/Scrivania/simpy/dse/enviro/bin/python
 import simpy
 import sys
 import os
 import multiprocessing
-
 from blackboard import Blackboard
 from log import Logger
-from component import *
+from components import *
+from gates import *
+from performing import *
 
 
 #Test functions
@@ -31,9 +33,33 @@ def core_02(sendqueue,env):
     middleCD.setSubcomponents([leafC, leafD])
     middleAB.setSubcomponents([leafA, leafB])
 
+def core_03(sendqueue,env):
+    topABCD = Gate('TopABCD',sendqueue,env,0,10,1)
+    middleAB = Gate('MiddleAB',sendqueue,env,0,0,2)
+    middleCD = Gate('MiddleCD',sendqueue,env,0,0,2)
+    leafA = Component('LeafA',sendqueue,env,1000,0)
+    leafB = Component('LeafB',sendqueue,env,10,0)
+    leafC = Component('LeafC',sendqueue,env,10,0)
+    leafD = Component('LeafD',sendqueue,env,100,0)
+    leafA.setOwner(middleAB)
+    leafB.setOwner(middleAB)
+    leafC.setOwner(middleCD)
+    leafD.setOwner(middleCD)
+    middleCD.setOwner(topABCD)
+    middleAB.setOwner(topABCD)
+    topABCD.setSubcomponents([middleCD, middleAB])
+    middleCD.setSubcomponents([leafC, leafD])
+    middleAB.setSubcomponents([leafA, leafB])
+
+def core_04(sendqueue,env):
+    behav = SimpleBehaviour('workerbehaviour', sendqueue, env, 3)
+    worker = Performing('worker',sendqueue,env,behav,10,10)
+
 fdict = {
     'simple': core_01,
-    'structured': core_02
+    'structured': core_02,
+    'gate_fault': core_03,
+    'performing': core_04
 }
 
 
@@ -56,6 +82,7 @@ def main(stop,fcode):
     sendqueue = makeLogging()
     board = Blackboard()
     board.put('stoptime',stop)
+    board.put('debugLevel',False)
     fdict[fcode](sendqueue,env)
     env.run(until=stop)
     sendqueue.put('HALT')

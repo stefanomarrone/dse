@@ -1,4 +1,4 @@
-from statemachine import StateBasedItem, State
+from bucket.statemachine import StateBasedItem, State
 
 
 class Gate(StateBasedItem):

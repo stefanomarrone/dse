@@ -3,7 +3,7 @@ import sys
 import os
 import multiprocessing
 from log import Logger
-from gate import Gate
+from bucket.gate import Gate
 
 
 def makeLogger(q):

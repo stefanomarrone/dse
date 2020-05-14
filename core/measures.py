@@ -54,7 +54,7 @@ class MetricAnalyser:
     def addMetric(self,metric):
         self.metrics.append(metric)
 
-    def compute(self, csvfilename):
+    def compute(self,csvfilename):
         csvhandle = open(csvfilename)
         csvReader = csv.reader(csvhandle,delimiter=';')
         for m in self.metrics:

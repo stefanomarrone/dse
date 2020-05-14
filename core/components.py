@@ -16,6 +16,7 @@ class Component(Loggable):
         self.mttr = mmttr
         board = Blackboard()
         self.finalTime = board.get('stoptime')
+        self.debugLevel = board.get('debugLevel')
         self.process = self.env.process(self.run())
 
     def setSubcomponents(self, ssubcomponents):
@@ -32,19 +33,13 @@ class Component(Loggable):
         yield self.env.timeout(guess)
 
     def faultPropagation(self,cause=''):
-        message = 'is breaking;'
-        for sub in self.subcomponents:
-            candidate = sub.getName()
-            if (candidate != cause):
-                self.log(message + sub.getName() + ';')
-                sub.process.interrupt(self.getName())
-        if (self.owner is not None) and (self.owner.getName() != cause):
-            self.log(message + self.owner.getName() + ';')
-            self.owner.process.interrupt(self.getName())
+        self.downFaultPropagation(cause)
+        self.upFaultPropagation(cause)
 
     def repairPropagation(self):
         for sub in self.subcomponents:
-            self.log('is restoring;' + sub.getName() + ';')
+            if (self.debugLevel == True):
+                self.log('is restoring;' + sub.getName() + ';')
             sub.process.interrupt(self.getName())
 
     def fail(self):
@@ -53,7 +48,11 @@ class Component(Loggable):
     def repair(self):
         yield self.env.process(self.waitForEvent(self.mttr))
 
+    def boot(self):
+        pass
+
     def run(self):
+        self.boot()
         while True:
             faultCause = ''
             self.log('is working;;')
@@ -65,6 +64,7 @@ class Component(Loggable):
                 self.log('is interrupted by;' + faultCause + ';')
             finally:
                 self.faultPropagation(faultCause)
+            self.log('is down;;')
             try:
                 yield self.env.process(self.waitForEvent(self.mtbf))
             except simpy.Interrupt as i:
@@ -72,3 +72,18 @@ class Component(Loggable):
             finally:
                 self.log('has been repaired;;')
                 self.repairPropagation()
+
+    def downFaultPropagation(self, cause):
+        for sub in self.subcomponents:
+            candidate = sub.getName()
+            if (candidate != cause):
+                if (self.debugLevel == True):
+                    self.log('is breaking;' + sub.getName() + ';')
+                sub.process.interrupt(self.getName())
+
+    def upFaultPropagation(self,cause):
+        if (self.owner is not None) and (self.owner.getName() != cause):
+            if (self.debugLevel == True):
+                self.log('is breaking;' + self.owner.getName() + ';')
+            self.owner.process.interrupt(self.getName())
+
