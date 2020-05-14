@@ -1,9 +1,11 @@
 import datetime
 import time
+from blackboard import Blackboard
 
 
 class Loggable():
     def __init__(self, nname, qqueue, eenv):
+        self.dlevel = Blackboard().get('debugLevel')
         self.name = nname
         self.queue = qqueue
         self.env = eenv
@@ -11,10 +13,10 @@ class Loggable():
     def getName(self):
         return self.name
 
-    def log(self, message):
-        #tosend = '@' + str(self.env.now) + '\t' + self.name + message
-        tosend = str(self.env.now) + ';' + self.name + ';' + message
-        self.queue.put(tosend)
+    def log(self, message, debuglevel):
+        if (self.dlevel <= debuglevel):
+            tosend = str(self.env.now) + ';' + self.name + ';' + message
+            self.queue.put(tosend)
 
 
 class Logger:

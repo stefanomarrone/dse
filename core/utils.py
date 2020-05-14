@@ -17,7 +17,11 @@ def lottery(probabilities):
         counter = counter + 1
     return counter - 1
 
-
 def expGuess(beta):
     guess = numpy.random.exponential(beta)
     return guess
+
+def unpack_interrupt(cause):
+    kind = cause[-2]
+    sender = cause[0:-3]
+    return (kind, sender)

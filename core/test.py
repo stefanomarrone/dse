@@ -1,4 +1,3 @@
-#!/home/stefano/Scrivania/simpy/dse/enviro/bin/python
 import simpy
 import sys
 import os
@@ -34,9 +33,9 @@ def core_02(sendqueue,env):
     middleAB.setSubcomponents([leafA, leafB])
 
 def core_03(sendqueue,env):
-    topABCD = Gate('TopABCD',sendqueue,env,0,10,1)
-    middleAB = Gate('MiddleAB',sendqueue,env,0,0,2)
-    middleCD = Gate('MiddleCD',sendqueue,env,0,0,2)
+    topABCD = OrGate('TopABCD',sendqueue,env,0,10)
+    middleAB = AndGate('MiddleAB',sendqueue,env,0,0)
+    middleCD = AndGate('MiddleCD',sendqueue,env,0,0)
     leafA = Component('LeafA',sendqueue,env,1000,0)
     leafB = Component('LeafB',sendqueue,env,10,0)
     leafC = Component('LeafC',sendqueue,env,10,0)
@@ -82,7 +81,7 @@ def main(stop,fcode):
     sendqueue = makeLogging()
     board = Blackboard()
     board.put('stoptime',stop)
-    board.put('debugLevel',False)
+    board.put('debugLevel',1)
     fdict[fcode](sendqueue,env)
     env.run(until=stop)
     sendqueue.put('HALT')
