@@ -4,7 +4,7 @@ from simpy import Interrupt
 from log import Loggable
 
 
-class SimpleBehaviour(Loggable):
+class Behaviour(Loggable):
     def __init__(self, nname, qqname, eenv, dettime):
         super().__init__(nname, qqname, eenv)
         self.deltatime = dettime

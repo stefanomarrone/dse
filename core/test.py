@@ -51,7 +51,7 @@ def core_03(sendqueue,env):
     middleAB.setSubcomponents([leafA, leafB])
 
 def core_04(sendqueue,env):
-    behav = SimpleBehaviour('workerbehaviour', sendqueue, env, 3)
+    behav = Behaviour('workerbehaviour', sendqueue, env, 3)
     worker = Performing('worker',sendqueue,env,behav,10,10)
 
 fdict = {
