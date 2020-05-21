@@ -1,4 +1,4 @@
-from failure import TooSimpleRepairable
+from bucket.failure import TooSimpleRepairable
 
 class SimpleElement(TooSimpleRepairable):
 	def __init__(self,eenv,qqueue,nname,ttime,ffProb,mmttr):

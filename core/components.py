@@ -6,8 +6,8 @@ from log import Loggable
 
 class Component(Loggable):
 
-    def __init__(self, nname, qqueue, eenv, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv)
+    def __init__(self, nname, mmtbf=0, mmttr=0):
+        super().__init__(nname)
         self.owner = None
         self.mtbf = mmtbf
         self.mttr = mmttr

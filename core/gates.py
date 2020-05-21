@@ -4,8 +4,8 @@ from components import Component
 
 
 class Gate(Component):
-    def __init__(self, nname, qqueue, eenv, kk, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv, mmtbf, mmttr)
+    def __init__(self, nname, kk, mmtbf=0, mmttr=0):
+        super().__init__(nname, mmtbf, mmttr)
         self.threshold = kk
         self.subcomponents = list()
 
@@ -72,8 +72,8 @@ class Gate(Component):
 
 
 class AndGate(Gate):
-    def __init__(self, nname, qqueue, eenv, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv, 0, mmtbf, mmttr)
+    def __init__(self, nname, mmtbf=0, mmttr=0):
+        super().__init__(nname, 0, mmtbf, mmttr)
 
     def setSubcomponents(self, ssubcomponents):
         self.subcomponents = ssubcomponents
@@ -85,11 +85,11 @@ class AndGate(Gate):
 
 
 class KooNGate(Gate):
-    def __init__(self, nname, qqueue, eenv, k, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv, k, mmtbf, mmttr)
+    def __init__(self, nname, k, mmtbf=0, mmttr=0):
+        super().__init__(nname, k, mmtbf, mmttr)
 
 class OrGate(Gate):
-    def __init__(self, nname, qqueue, eenv, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv, 1, mmtbf, mmttr)
+    def __init__(self, nname, mmtbf=0, mmttr=0):
+        super().__init__(nname, 1, mmtbf, mmttr)
 
 

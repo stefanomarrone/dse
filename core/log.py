@@ -4,11 +4,11 @@ from blackboard import Blackboard
 
 
 class Loggable():
-    def __init__(self, nname, qqueue, eenv):
+    def __init__(self, nname):
         self.dlevel = Blackboard().get('debugLevel')
         self.name = nname
-        self.queue = qqueue
-        self.env = eenv
+        self.queue = Blackboard().get('logqueue')
+        self.env = Blackboard().get('enviro')
 
     def getName(self):
         return self.name
@@ -21,7 +21,7 @@ class Loggable():
 
 class Logger:
     def __init__(self, qqueue):
-        self.queue = qqueue
+        self.logqueue = qqueue
         self.running = True
 
     def manage(self, message):
@@ -32,10 +32,9 @@ class Logger:
 
     def log(self, message):
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        #print('\t\t' + st + '\t\t' + message)
         print(message)
 
     def run(self):
         while (self.running == True):
-            m = self.queue.get()
+            m = self.logqueue.get()
             self.manage(m)

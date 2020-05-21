@@ -10,18 +10,18 @@ from performing import *
 
 
 #Test functions
-def core_01(sendqueue,env):
-    Component('GA', sendqueue, env, 1000, 10)
-    Component('GB', sendqueue, env, 1000)
+def core_01():
+    Component('GA', 1000, 10)
+    Component('GB', 1000)
 
-def core_02(sendqueue,env):
-    topABCD = Component('TopABCD',sendqueue, env, 0, 10)
-    middleAB = Component('MiddleAB',sendqueue, env, 0, 0)
-    middleCD = Component('MiddleCD',sendqueue, env, 0, 0)
-    leafA = Component('LeafA', sendqueue, env, 1000, 0)
-    leafB = Component('LeafB', sendqueue, env, 10, 0)
-    leafC = Component('LeafC', sendqueue, env, 10, 0)
-    leafD = Component('LeafD', sendqueue, env, 100, 0)
+def core_02():
+    topABCD = Component('TopABCD', 0, 10)
+    middleAB = Component('MiddleAB', 0, 0)
+    middleCD = Component('MiddleCD', 0, 0)
+    leafA = Component('LeafA', 1000, 0)
+    leafB = Component('LeafB', 10, 0)
+    leafC = Component('LeafC', 10, 0)
+    leafD = Component('LeafD', 100, 0)
     leafA.setOwner(middleAB)
     leafB.setOwner(middleAB)
     leafC.setOwner(middleCD)
@@ -32,14 +32,14 @@ def core_02(sendqueue,env):
     middleCD.setSubcomponents([leafC, leafD])
     middleAB.setSubcomponents([leafA, leafB])
 
-def core_03(sendqueue,env):
-    topABCD = OrGate('TopABCD',sendqueue,env,0,10)
-    middleAB = AndGate('MiddleAB',sendqueue,env,0,0)
-    middleCD = AndGate('MiddleCD',sendqueue,env,0,0)
-    leafA = Component('LeafA',sendqueue,env,1000,0)
-    leafB = Component('LeafB',sendqueue,env,10,0)
-    leafC = Component('LeafC',sendqueue,env,10,0)
-    leafD = Component('LeafD',sendqueue,env,100,0)
+def core_03():
+    topABCD = OrGate('TopABCD',0,10)
+    middleAB = AndGate('MiddleAB',0,0)
+    middleCD = AndGate('MiddleCD',0,0)
+    leafA = Component('LeafA',1000,0)
+    leafB = Component('LeafB',10,0)
+    leafC = Component('LeafC',10,0)
+    leafD = Component('LeafD',100,0)
     leafA.setOwner(middleAB)
     leafB.setOwner(middleAB)
     leafC.setOwner(middleCD)
@@ -50,9 +50,9 @@ def core_03(sendqueue,env):
     middleCD.setSubcomponents([leafC, leafD])
     middleAB.setSubcomponents([leafA, leafB])
 
-def core_04(sendqueue,env):
-    behav = Behaviour('workerbehaviour', sendqueue, env, 3)
-    worker = Performing('worker',sendqueue,env,behav,10,10)
+def core_04():
+    behav = SimpleBehaviour('workerbehaviour', 3)
+    worker = Performing('worker',behav,10,10)
 
 fdict = {
     'simple': core_01,
@@ -80,9 +80,11 @@ def main(stop,fcode):
     env = simpy.Environment()
     sendqueue = makeLogging()
     board = Blackboard()
+    board.put('enviro',env)
+    board.put('logqueue',sendqueue)
     board.put('stoptime',stop)
     board.put('debugLevel',1)
-    fdict[fcode](sendqueue,env)
+    fdict[fcode]()
     env.run(until=stop)
     sendqueue.put('HALT')
 

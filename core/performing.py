@@ -5,17 +5,14 @@ from log import Loggable
 
 
 class Behaviour(Loggable):
-    def __init__(self, nname, qqname, eenv, dettime):
-        super().__init__(nname, qqname, eenv)
-        self.deltatime = dettime
+    def __init__(self, nname):
+        super().__init__(nname)
         self.onrun = True
         self.infinite = Blackboard().get('stoptime')
         self.process = self.env.process(self.run())
 
     def do(self):
-        yield self.env.timeout(self.deltatime)
-        if (self.onrun == True):
-            self.log('is working;;',2)
+        pass
 
     def run(self):
         while True:
@@ -27,11 +24,20 @@ class Behaviour(Loggable):
             except Interrupt as i:
                 self.onrun = not self.onrun
 
+class SimpleBehaviour(Behaviour):
+    def __init__(self, nname, dettime):
+        super().__init__(nname)
+        self.deltatime = dettime
+
+    def do(self):
+        yield self.env.timeout(self.deltatime)
+        if (self.onrun == True):
+            self.log('is working;;',2)
+
 
 class Performing(Component):
-
-    def __init__(self, nname, qqueue, eenv, bbehaviour, mmtbf=0, mmttr=0):
-        super().__init__(nname, qqueue, eenv, mmtbf, mmttr)
+    def __init__(self, nname, bbehaviour, mmtbf=0, mmttr=0):
+        super().__init__(nname, mmtbf, mmttr)
         self.behaviour = bbehaviour
 
     def faultPropagation(self):
