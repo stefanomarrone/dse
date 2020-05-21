@@ -1,6 +1,6 @@
 import datetime
 import time
-from blackboard import Blackboard
+from core.blackboard import Blackboard
 
 
 class Loggable():

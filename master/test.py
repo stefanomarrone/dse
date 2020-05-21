@@ -2,11 +2,11 @@ import simpy
 import sys
 import os
 import multiprocessing
-from blackboard import Blackboard
-from log import Logger
-from components import *
-from gates import *
-from performing import *
+from core.blackboard import Blackboard
+from core.log import Logger
+from core.components import *
+from core.gates import *
+from core.performing import *
 
 
 #Test functions

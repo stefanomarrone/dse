@@ -1,6 +1,6 @@
 import simpy
-import utils
-from components import Component
+import core.utils as utils
+from core.components import Component
 
 
 class Gate(Component):

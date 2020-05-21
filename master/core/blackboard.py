@@ -1,4 +1,4 @@
-from metaclasses import Singleton
+from core.metaclasses import Singleton
 
 class Blackboard(metaclass=Singleton):
 

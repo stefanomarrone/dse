@@ -1,7 +1,7 @@
-from components import Component
-from blackboard import Blackboard
+from core.components import Component
+from core.blackboard import Blackboard
 from simpy import Interrupt
-from log import Loggable
+from core.log import Loggable
 
 
 class Behaviour(Loggable):

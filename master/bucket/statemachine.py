@@ -1,5 +1,5 @@
-from components import Component
-import utils
+from core.components import Component
+import core.utils as utils
 
 class State:
 	def __init__(self,ttransitions,ssojourn,aaction):

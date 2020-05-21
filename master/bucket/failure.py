@@ -1,5 +1,5 @@
 import random
-from log import Loggable
+from core.log import Loggable
 
 
 class TooSimpleRepairable(Loggable):

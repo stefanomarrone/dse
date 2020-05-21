@@ -1,7 +1,7 @@
-import utils
+import core.utils as utils
 import simpy
-from blackboard import Blackboard
-from log import Loggable
+from core.blackboard import Blackboard
+from core.log import Loggable
 
 
 class Component(Loggable):

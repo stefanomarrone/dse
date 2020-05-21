@@ -2,7 +2,7 @@ import simpy
 import sys
 import os
 import multiprocessing
-from log import Logger
+from core.log import Logger
 from bucket.gate import Gate
 
 
