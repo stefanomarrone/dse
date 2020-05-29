@@ -41,6 +41,14 @@ class Gate(Component):
             if (sub.working == False):
                 self.log('is restoring;' + sub.getName() + ';',0)
                 sub.process.interrupt(self.getName() + '(R)')
+        if (self.owner != None):
+            if (self.owner.canWork() == True):
+                self.log('la sua riparazione ha fatto si che ritornasse;' + self.owner.getName() + ';',0)
+                self.owner.process.interrupt(self.getName() + '(R)')
+
+
+    def canWork(self):
+        return not self.thresholdReached()
 
     def run(self):
         self.boot()
