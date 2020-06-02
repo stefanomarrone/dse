@@ -16,23 +16,37 @@ class Component(Loggable):
         self.debugLevel = board.get('debugLevel')
         self.working = True
         self.process = self.env.process(self.run())
+        self.faultStartTime = self.env.now
+        self.repairStartTime = self.env.now
 
     def setOwner(self, oowner):
         self.owner = oowner
 
-    def waitForEvent(self, beta):
-        guess = self.finalTime if (beta == 0) else utils.expGuess(beta)
-        yield self.env.timeout(guess)
+    def waitForRepair(self, beta):
+        temp = self.finalTime if (beta == 0) else utils.expGuess(beta)
+        self.repairStartTime = self.env.now
+        yield self.env.timeout(temp)
+
+    def waitForFault(self, beta):
+        temp = self.finalTime if (beta == 0) else utils.expGuess(beta)
+        self.guess = temp - self.repairStartTime + self.faultStartTime
+        self.faultStartTime = self.env.now
+        if (self.guess < 1):
+            self.lastGuess = temp
+            yield self.env.timeout(temp)
+        else:
+            self.lastGuess = self.guess
+            yield self.env.timeout(self.guess)
 
     def faultPropagation(self):
         self.upFaultPropagation()
         self.downFaultPropagation()
 
     def fail(self):
-        yield self.env.process(self.waitForEvent(self.mtbf))
+        yield self.env.process(self.waitForFault(self.mtbf))
 
     def repair(self):
-        yield self.env.process(self.waitForEvent(self.mttr))
+        yield self.env.process(self.waitForRepair(self.mttr))
 
     def boot(self):
         pass
