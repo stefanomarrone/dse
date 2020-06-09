@@ -71,7 +71,7 @@ class Gate(Component):
             while self.working == False:
                 try:
                     self.log('is down;;',2)
-                    yield self.env.process(self.repair())
+                    yield self.env.process(self.repair(self.repairman))
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)
                 finally:

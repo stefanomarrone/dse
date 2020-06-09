@@ -18,9 +18,14 @@ class Component(Loggable):
         self.process = self.env.process(self.run())
         self.faultStartTime = self.env.now
         self.repairStartTime = self.env.now
+        self.repairman = board.get('repairer')
+        #self.priority = ppriority
 
     def setOwner(self, oowner):
         self.owner = oowner
+
+    def setRepairman(self, rrepairman):
+        self.repairman = rrepairman
 
     def waitForRepair(self, beta):
         temp = self.finalTime if (beta == 0) else utils.expGuess(beta)
@@ -45,9 +50,17 @@ class Component(Loggable):
     def fail(self):
         yield self.env.process(self.waitForFault(self.mtbf))
 
-    def repair(self):
-        yield self.env.process(self.waitForRepair(self.mttr))
-
+    def repair(self,repairman):
+        if (self.mttr > 0):
+            self.request = repairman.request()
+            #self.request = repairer.request(priority=self.priority)
+            self.log('calling the repairman;',0)
+            yield self.request
+            if (self.working == False):
+                yield self.env.process(self.waitForRepair(self.mttr))
+            repairman.release(self.request)
+        else:
+            yield self.env.process(self.waitForRepair(self.mttr))
     def boot(self):
         pass
 
@@ -67,7 +80,7 @@ class Component(Loggable):
             while (self.working == False):
                 try:
                     self.log('is down;;',2)
-                    yield self.env.process(self.repair())
+                    yield self.env.process(self.repair(self.repairman))
                 except simpy.Interrupt as i:
                     (kind, source) = utils.unpack_interrupt(i.cause)
                     self.log('repaired by extern;' + str((kind, source)),0)

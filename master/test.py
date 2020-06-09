@@ -215,13 +215,82 @@ def core_06():
     wan.setSubcomponents([wan1,wan2])
     gsm.setSubcomponents([gsm1,gsm2])
     
+def core_07():
+    global_top = OrGate('Global',0,30)
+
+    piesse = AndGate('PS',0 ,0)
+    piesse.setOwner(global_top)
+
+    piesse1 = Component('PS1',3300000,10)
+    piesse2 = Component('PS2',3300000,10)
+    piesse3 = Component('PS3',3300000,10)
+    piesse1.setOwner(piesse)
+    piesse2.setOwner(piesse)
+    piesse3.setOwner(piesse)
+    
+    bus = AndGate('BUS',0 ,0)
+    bus.setOwner(global_top)
+
+    bus1 = Component('BUS1',13500000,15)
+    bus2 = Component('BUS2',13500000,15)
+    bus1.setOwner(bus)
+    bus2.setOwner(bus)
+
+    tmr = OrGate('TMR',0,0)
+    tmr.setOwner(global_top)
+
+    voter = AndGate('Voter',10,0)
+    voter.setOwner(tmr)
+
+    voter1 = Component('Voter1',20000000000,15)
+    voter2 = Component('Voter2',20000000000,15)
+    voter1.setOwner(voter)
+    voter2.setOwner(voter)
+
+    cpu = AndGate('CPU',0 , 0)
+    cpu.setOwner(tmr)
+
+    cpu1 = Component('CPU1',8100000, 10)
+    cpu2 = Component('CPU2',8100000 ,10)
+    cpu3 = Component('CPU3',8100000 ,10)
+    cpu1.setOwner(cpu)
+    cpu2.setOwner(cpu)
+    cpu3.setOwner(cpu)
+
+    wan = AndGate('WAN',0 ,0 )
+    wan.setOwner(global_top)
+
+    wan1 = Component('WAN1',24000000,10 )
+    wan2 = Component('WAN2',24000000,10 )
+    wan1.setOwner(wan)
+    wan2.setOwner(wan)
+
+    gsm = AndGate('GSM-R',0 ,0 )
+    gsm.setOwner(global_top)
+
+    gsm1 = Component('GSM-R1',10500000,10 )
+    gsm2 = Component('GSM-R2',10500000,10 )
+    gsm1.setOwner(gsm)
+    gsm2.setOwner(gsm)
+
+    global_top.setSubcomponents([piesse,bus,tmr,wan,gsm])
+    piesse.setSubcomponents([piesse1,piesse2,piesse3])
+    bus.setSubcomponents([bus1,bus2])
+    tmr.setSubcomponents([voter,cpu])
+    voter.setSubcomponents([voter1,voter2])
+    cpu.setSubcomponents([cpu1,cpu2,cpu3])
+    wan.setSubcomponents([wan1,wan2])
+    gsm.setSubcomponents([gsm1,gsm2])
+    
+
 fdict = {
     'simple': core_01,
     'structured': core_02,
     'gate_fault': core_03,
     'performing': core_04,
     'on_board': core_05,
-    'onb_repair': core_06
+    'onb_repair': core_06,
+    'onb_repairman': core_07
 }
 
 
@@ -241,11 +310,12 @@ def makeLogging():
 
 def main(stop,fcode):
     env = simpy.Environment()
-    
+    repairman = simpy.Resource(env,1)
     #logging block
     sendqueue = makeLogging()
     board = Blackboard()
     board.put('enviro',env)
+    board.put('repairer',repairman)
     board.put('logqueue',sendqueue)
     board.put('stoptime',stop)
     #board.put('debugLevel',1)
