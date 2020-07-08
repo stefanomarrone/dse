@@ -39,11 +39,11 @@ class Gate(Component):
     def repairPropagation(self):
         for sub in self.subcomponents:
             if (sub.working == False):
-                self.log('is restoring;' + sub.getName() + ';',0)
+                self.info('is restoring;' + sub.getName() + ';')
                 sub.process.interrupt(self.getName() + '(R)')
         if (self.owner != None):
             if (self.owner.canWork() == True):
-                self.log('la sua riparazione ha fatto si che ritornasse;' + self.owner.getName() + ';',0)
+                self.info('la sua riparazione ha fatto si che ritornasse;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(R)')
 
 
@@ -56,21 +56,21 @@ class Gate(Component):
             self.working = True
             while (self.working == True):
                 try:
-                    self.log('is up;;',2)
+                    self.info('is up;;')
                     yield self.env.process(self.fail())
-                    self.log('has failed by itself;;',0)
+                    self.info('has failed by itself;;')
                     self.working = False
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)
-                    self.log('is receiving an interrupt;' + str(i.cause) + ';',0)
+                    self.info('is receiving an interrupt;' + str(i.cause) + ';')
                     self.working = self.isStillWorking(sender)
-                    self.log('will continue?;' + str(self.working) + ';',0)
+                    self.info('will continue?;' + str(self.working) + ';')
                 finally:
                     if (self.working == False):
                         self.faultPropagation()
             while self.working == False:
                 try:
-                    self.log('is down;;',2)
+                    self.info('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)

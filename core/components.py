@@ -1,24 +1,23 @@
 import core.utils as utils
-import simpy
-from core.blackboard import Blackboard
+from simpy import Interrupt
+from core.boards import Configuration, Blackboard
 from core.log import Loggable
 
 
 class Component(Loggable):
-
     def __init__(self, nname, mmtbf=0, mmttr=0):
         super().__init__(nname)
         self.owner = None
         self.mtbf = mmtbf
         self.mttr = mmttr
-        board = Blackboard()
-        self.finalTime = board.get('stoptime')
-        self.debugLevel = board.get('debugLevel')
+        conf = Configuration()
+        self.finalTime = conf.get('stoptime')
         self.working = True
         self.process = self.env.process(self.run())
         self.faultStartTime = self.env.now
         self.repairStartTime = self.env.now
-        self.repairman = board.get('repairer')
+        conf = Configuration()
+        self.repairman = Blackboard().get('maintainers')
         #self.priority = ppriority
 
     def setOwner(self, oowner):
@@ -54,13 +53,15 @@ class Component(Loggable):
         if (self.mttr > 0):
             self.request = repairman.request()
             #self.request = repairer.request(priority=self.priority)
-            self.log('calling the repairman;',0)
+            self.info('calling the repairman;;')
             yield self.request
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
             repairman.release(self.request)
         else:
             yield self.env.process(self.waitForRepair(self.mttr))
+
+
     def boot(self):
         pass
 
@@ -69,28 +70,28 @@ class Component(Loggable):
         while True:
             while (self.working == True):
                 try:
-                    self.log('is working;;',2)
+                    self.info('is working;;')
                     yield self.env.process(self.fail())
-                    self.log('has failed by itself;;',0)
+                    self.info('has failed by itself;;')
                     self.working = False
                     self.faultPropagation()
-                except simpy.Interrupt as i:
+                except Interrupt as i:
                     kind, source = utils.unpack_interrupt(i.cause)
                     self.working = not (kind == 'F')
             while (self.working == False):
                 try:
-                    self.log('is down;;',2)
+                    self.info('is down;;')
                     yield self.env.process(self.repair(self.repairman))
-                except simpy.Interrupt as i:
+                except Interrupt as i:
                     (kind, source) = utils.unpack_interrupt(i.cause)
-                    self.log('repaired by extern;' + str((kind, source)),0)
+                    self.info('repaired by extern;' + str((kind, source)))
                 finally:
                     self.working = True
 
     def upFaultPropagation(self):
         if (self.owner != None):
             if (self.owner.working == True):
-                self.log('is breaking;' + self.owner.getName() + ';',0)
+                self.info('is breaking;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(F)')
 
     def downFaultPropagation(self):

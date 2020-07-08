@@ -1,13 +1,12 @@
-import simpy
 import sys
 import os
 import multiprocessing
-from core.blackboard import Blackboard
+import simpy
 from core.log import Logger
-from core.components import *
-from core.gates import *
-from core.performing import *
-
+from core.components import Component
+from core.gates import Gate, OrGate, AndGate
+from performing import SimpleBehaviour, Performing
+from core.boards import Configuration, Blackboard
 
 #Test functions
 def core_01():
@@ -313,13 +312,14 @@ def main(stop,fcode):
     repairman = simpy.Resource(env,1)
     #logging block
     sendqueue = makeLogging()
+    conf = Configuration()
     board = Blackboard()
     board.put('enviro',env)
-    board.put('repairer',repairman)
+    conf.put('[dependability]maintainers',repairman)
     board.put('logqueue',sendqueue)
-    board.put('stoptime',stop)
+    conf.put('stoptime',stop)
     #board.put('debugLevel',1)
-    board.put('debugLevel',0)
+    conf.put('debuglevel',0)
     
     #la funzione definisce l'ambiente
     fdict[fcode]()
@@ -330,7 +330,7 @@ def main(stop,fcode):
 if __name__ == "__main__":
     if len(sys.argv) > 2:
         fcode = sys.argv[1]
-        stopTime = int(sys.argv[2])
+        stopTime = float(sys.argv[2])
         original = sys.stdout
         if len(sys.argv) > 3:
             fname = sys.argv[3]
