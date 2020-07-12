@@ -1,38 +1,40 @@
 from core.boards import Configuration
-from ertms.subsystems import Hardware
+from ertms.subsystems import RHardware
 from core.performing import Behaviour
 
 def mergeMTTRS(components):
-    #fixme complete
-    pass
+    retval = list()
+    conf = Configuration()
+    for comp in components:
+        name = str(comp[0]).lower()
+        mttr = conf.get('[rbc]' + name + '_mttr')
+        new = (*comp,mttr)
+        retval.append(new)
+    return retval
+
+
 
 class RBCLogic(Behaviour):
-    def __init__(self,nname,nnretry,ttrestore,ttretry,nnvcontact):
+    def __init__(self,nname,ch):
         super().__init__(nname)
-        self.channel = None
-        self.nvcontact = nnvcontact
-        self.nretry = nnretry
-        self.trestore = ttrestore
-        self.tretry = ttretry
+        self.channel = ch
+        self.matime = Configuration().get('[comm]ma_time')
 
-    def setChannel(self,ch):
+    def setChannel(self, ch):
         self.channel = ch
 
     def do(self):
-        yield self.env.timeout(10)
+        yield self.env.timeout(self.matime)
+        yield self.env.process(self.channel.put('ping'))
 
 class RBC():
     def __init__(self, nname):
         conf = Configuration()
-        comp = conf.get('[evc]structure')
+        comp = conf.get('[rbc]structure')
         mttr = conf.get('[rbc]top_mttr')
-        mergeMTTRS(comp)
-        nretry = conf.get('[comm]num_retry')
-        trestore = conf.get('[comm]t_restore')
-        tretry = conf.get('[comm]t_retry')
-        nvcontact = conf.get('[comm]tnv')
-        self.logic = RBCLogic(nname + '_logic',nretry,trestore,tretry,nvcontact)
-        self.structure = Hardware(nname, comp, mttr, self.logic)
+        comp = mergeMTTRS(comp)
+        self.structure = RHardware(nname, comp, mttr)
 
-    def setChannel(self, channel):
-        self.logic.setChannel(channel)
+    def addBehaviour(self, logicname, channel):
+        logic = RBCLogic(logicname,channel)
+        self.structure.addBehaviour(logic)

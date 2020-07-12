@@ -19,6 +19,10 @@ def lottery(probabilities):
         counter = counter + 1
     return counter - 1
 
+def uniform(min,max):
+    guess = numpy.random.random(max-min) + min
+    return guess
+
 def expGuess(beta):
     guess = numpy.random.exponential(beta)
     return guess

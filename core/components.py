@@ -16,7 +16,6 @@ class Component(Loggable):
         self.process = self.env.process(self.run())
         self.faultStartTime = self.env.now
         self.repairStartTime = self.env.now
-        conf = Configuration()
         self.repairman = Blackboard().get('maintainers')
         #self.priority = ppriority
 

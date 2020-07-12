@@ -3,7 +3,7 @@ from core.gates import Gate, OrGate
 from core.boards import Configuration
 from simpy import Interrupt
 from core.log import Loggable
-
+from core.measures import Recorder
 
 class Behaviour(Loggable):
     def __init__(self, nname):
@@ -50,6 +50,9 @@ class Performing(Component):
             temp.append(bbehaviours)
         self.behaviours = temp
 
+    def addBehaviour(self, behave):
+        self.behaviours.append(behave)
+
     def faultPropagation(self):
         super().faultPropagation()
         for b in self.behaviours:
@@ -65,17 +68,29 @@ class TopPerforming(OrGate):
     def __init__(self, nname, bbehaviours, mmtbf=0, mmttr=0):
         super().__init__(nname, mmtbf, mmttr)
         temp = bbehaviours
+        self.lastuptime = 0
         if isinstance(temp,list) == False:
             temp = list()
             temp.append(bbehaviours)
         self.behaviours = temp
 
+    def addBehaviour(self, behave):
+        self.behaviours.append(behave)
+
     def faultPropagation(self):
+        self.warning('breaking;;')
+        self.lastuptime = self.env.now
         super().faultPropagation()
         for b in self.behaviours:
             b.process.interrupt()
 
     def repairPropagation(self):
+        self.warning('repairing;;')
+        Recorder().add(self.getMeasureName(),self.env.now - self.lastuptime)
         super().repairPropagation()
         for b in self.behaviours:
             b.process.interrupt()
+
+    def getMeasureName(self):
+        retval = self.name + '_downtime'
+        return retval
