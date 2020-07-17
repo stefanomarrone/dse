@@ -10,7 +10,7 @@ from ertms.evcs import EVC
 from ertms.rbcs import RBC
 from core.maintenance import MaintainersFactroy
 from math import isnan
-from utils import mean
+from core.utils import mean
 
 def configurationSetup(cfile, mfile, ifile):
     conf = ConfigurationFactory()
@@ -123,5 +123,5 @@ if __name__ == "__main__":
         root(config, maint, log, indices)
         LoggerFactory.shutdown()
     else:
-        usage = sys.argv[0] + ' configuration maintenance logs indices'
+        usage = 'python' + sys.argv[0] + ' configuration maintenance logs indices'
         print(usage)
