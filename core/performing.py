@@ -65,7 +65,7 @@ class Performing(Component):
 
 #todo refactoring of the classes to exploit multiple inheritance
 class TopPerforming(OrGate):
-    def __init__(self, nname, bbehaviours, mmtbf=0, mmttr=0):
+    def __init__(self, nname, bbehaviours, mmtbf=0, mmttr=0, listeners = list()):
         super().__init__(nname, mmtbf, mmttr)
         temp = bbehaviours
         self.lastuptime = 0
@@ -73,6 +73,7 @@ class TopPerforming(OrGate):
             temp = list()
             temp.append(bbehaviours)
         self.behaviours = temp
+        self.listeners = listeners
 
     def addBehaviour(self, behave):
         self.behaviours.append(behave)
@@ -80,12 +81,14 @@ class TopPerforming(OrGate):
     def faultPropagation(self):
         self.warning('breaking;;')
         self.lastuptime = self.env.now
+        self.notify()
         super().faultPropagation()
         for b in self.behaviours:
             b.process.interrupt()
 
     def repairPropagation(self):
         self.warning('repairing;;')
+        self.notify()
         Recorder().add(self.getMeasureName(),self.env.now - self.lastuptime)
         super().repairPropagation()
         for b in self.behaviours:
@@ -94,3 +97,7 @@ class TopPerforming(OrGate):
     def getMeasureName(self):
         retval = self.name + '_downtime'
         return retval
+
+    def notify(self):
+        for l in self.listeners:
+            l.put(self.name)

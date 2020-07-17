@@ -20,7 +20,7 @@ def lottery(probabilities):
     return counter - 1
 
 def uniform(min,max):
-    guess = numpy.random.random(max-min) + min
+    guess = numpy.random.random() * (max-min) + min
     return guess
 
 def expGuess(beta):

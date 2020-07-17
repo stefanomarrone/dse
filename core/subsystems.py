@@ -2,7 +2,7 @@ from core.gates import KooNGate
 from core.performing import *
 
 class Hardware():
-    def __init__(self, systemname, components, mttr, programs = list()):
+    def __init__(self, systemname, components, mttr, listeners, programs = list()):
         self.components = dict()
         middles = list()
         # creating subgroups
@@ -20,7 +20,7 @@ class Hardware():
             self.components[names].setSubcomponents(subs)
         # creating top group
         self.topname = systemname + '_' + 'top'
-        self.components[self.topname] = TopPerforming(self.topname,programs,0,mttr)
+        self.components[self.topname] = TopPerforming(self.topname,programs,0,mttr,listeners)
         self.components[self.topname].setSubcomponents(middles)
         for m in middles:
             m.setOwner(self.components[self.topname])
@@ -35,8 +35,8 @@ class Hardware():
 
 
 class RHardware(Hardware):
-    def __init__(self, systemname, components, mttr, programs = list()):
-        super().__init__(systemname, components, mttr, programs)
+    def __init__(self, systemname, components, mttr, listeners, programs = list()):
+        super().__init__(systemname, components, mttr, listeners, programs)
 
     def extractInformation(self, component):
         tag, number, koon, mtbf, c_mttr = component

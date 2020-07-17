@@ -1,6 +1,6 @@
 import logging
 from core.boards import Blackboard, Configuration
-
+import sys
 
 class LoggerFactory():
     diction = {
@@ -15,7 +15,7 @@ class LoggerFactory():
     def setup(logname):
         lvl = Configuration().get('logginglevel')
         lvl = LoggerFactory.diction[lvl]
-        logging.basicConfig(filename=logname, filemode='w', level=lvl)
+        logging.basicConfig(filename=logname, filemode='w', level=lvl, format="%(name)s;%(levelname)s;%(message)s")
 
     @staticmethod
     def shutdown():
@@ -27,10 +27,10 @@ class Loggable():
     def __init__(self, nname):
         self.name = nname
         self.logger = logging.getLogger(nname)
-        ch = logging.StreamHandler()
-        formatter = logging.Formatter("%(name)s;%(levelname)s;%(message)s")
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
+        #self.ch = logging.StreamHandler()
+        #formatter = logging.Formatter("%(name)s;%(levelname)s;%(message)s")
+        #self.ch.setFormatter(formatter)
+        #self.logger.addHandler(self.ch)
         self.env = Blackboard().get('enviro')
 
     def getName(self):
@@ -38,20 +38,25 @@ class Loggable():
 
     def info(self,msg):
         tosend = str(self.env.now) + ';' + msg
-        self.logger.info(tosend)
+        if sys.is_finalizing() == False:
+            self.logger.info(tosend)
 
     def warning(self,msg):
         tosend = str(self.env.now) + ';' + msg
-        self.logger.warning(tosend)
+        if sys.is_finalizing() == False:
+            self.logger.warning(tosend)
 
     def critical(self,msg):
         tosend = str(self.env.now) + ';' + msg
-        self.logger.critical(tosend)
+        if sys.is_finalizing() == False:
+            self.logger.critical(tosend)
 
     def debug(self,msg):
         tosend = str(self.env.now) + ';' + msg
-        self.logger.debug(tosend)
+        if sys.is_finalizing() == False:
+            self.logger.debug(tosend)
 
     def error(self,msg):
         tosend = str(self.env.now) + ';' + msg
-        self.logger.error(tosend)
+        if sys.is_finalizing() == False:
+            self.logger.error(tosend)

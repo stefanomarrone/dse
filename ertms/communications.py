@@ -14,7 +14,7 @@ class Comm(Component):
         self.unavail = conf.get('[comm]unavail')
 
     def put(self,msg):
-        guess = uniform(0,1)[0]
+        guess = uniform(0,1)
         if (guess > self.unavail):
             yield self.env.timeout(self.tcomm)
             while (random() < self.perr):

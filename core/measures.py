@@ -77,3 +77,9 @@ class Analyser():
             value = report[key]
             retval += key + ';' + str(value/3600) + ';\n'
         return retval
+
+    def size(self):
+        ks = self.record.keys()
+        ks = list(map(lambda x: len(self.record[x]),ks))
+        mn = min(ks)
+        return mn

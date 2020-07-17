@@ -1,6 +1,7 @@
 from core.boards import Configuration
-from ertms.subsystems import RHardware
+from core.subsystems import RHardware
 from core.performing import Behaviour
+
 
 def mergeMTTRS(components):
     retval = list()
@@ -27,13 +28,15 @@ class RBCLogic(Behaviour):
         yield self.env.timeout(self.matime)
         yield self.env.process(self.channel.put('ping'))
 
+
+
 class RBC():
-    def __init__(self, nname):
+    def __init__(self, nname, toetcs):
         conf = Configuration()
         comp = conf.get('[rbc]structure')
         mttr = conf.get('[rbc]top_mttr')
         comp = mergeMTTRS(comp)
-        self.structure = RHardware(nname, comp, mttr)
+        self.structure = RHardware(nname, comp, mttr, [toetcs])
 
     def addBehaviour(self, logicname, channel):
         logic = RBCLogic(logicname,channel)
