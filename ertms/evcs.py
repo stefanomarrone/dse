@@ -1,6 +1,6 @@
 from simpy import Resource
 from core.performing import *
-from subsystems import Hardware
+from core.subsystems import Hardware
 from core.measures import Recorder
 from core.boards import Blackboard
 
