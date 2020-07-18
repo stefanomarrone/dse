@@ -3,8 +3,8 @@ from core.measures import Recorder, Analyser
 from core.boards import Configuration, Blackboard
 from core.log import LoggerFactory
 from core.maintenance import MaintainersFactroy
-from progresses import Progressor
-from utils import mean
+from core.progresses import Progressor
+from core.utils import mean
 import logging
 
 
