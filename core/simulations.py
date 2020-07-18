@@ -1,9 +1,9 @@
-from simpy import Environment, Store
+from simpy import Environment
 from core.measures import Recorder, Analyser
 from core.boards import Configuration, Blackboard
 from core.log import LoggerFactory
 from core.maintenance import MaintainersFactroy
-from math import isnan
+from progresses import Progressor
 from utils import mean
 import logging
 
@@ -11,6 +11,7 @@ import logging
 class AbstractArgumentFactory():
     def setup(self,iifiles,iindices):
         pass
+
 
 class Simulation():
     def __init__(self, infiles, logs, iindices, factory):
@@ -41,13 +42,12 @@ class Simulation():
         counter = 0
         while (not stopcondition):
             logging.critical("ITERATION;" + str(counter) + ';')
-            print('pass ' + str(counter))
+            print("ITERATION " + str(counter))
             record = self.main(stop)
             retval.add(record)
             dim = retval.size()
             stopcondition = (counter == iters)
             if not stopcondition and dim > 5:
-                print('internal ' + str(counter))
                 temp = retval.confidence95()
                 diffs = list(map(lambda x: x[1][1] - x[1][0], temp.items()))
                 mids = list(map(lambda x: (x[1][0] + x[1][1]) / 2, temp.items()))
@@ -65,6 +65,7 @@ class Simulation():
         # start recorder
         record = Recorder()
         record.reset()
+        p = Progressor()
         # setup maintenance
         maintainers = MaintainersFactroy.generate(Configuration().get('[main]maintainers'))
         Blackboard().put('maintainers', maintainers)
@@ -72,8 +73,6 @@ class Simulation():
         self.loadScenario(enviro)
         # start the simulation
         enviro.run(until=stop)
-        # closing and post processing
-        #LoggerFactory.shutdown()
         retval = record.generateRecord()
         return retval
 
@@ -83,5 +82,3 @@ class Simulation():
         ex = c.get('experiments')
         eps = c.get('epsilon')
         return st, ex, eps
-
-
