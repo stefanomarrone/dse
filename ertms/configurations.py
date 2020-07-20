@@ -1,5 +1,6 @@
 from core.boards import *
 from configparser import ConfigParser
+from core.executors import ExecutorFactory
 
 class ConfigurationFactory(AbstractBoardFactory):
     def __init__(self):
@@ -39,6 +40,7 @@ class ConfigurationFactory(AbstractBoardFactory):
 
     def loadConfiguration(self,inifile):
         conf = Configuration()
+        print(conf)
         reader = ConfigParser()
         reader.read(inifile)
         try:
@@ -48,6 +50,10 @@ class ConfigurationFactory(AbstractBoardFactory):
             conf.put('epsilon', float(temp))
             temp = reader['main']['logginglevel']
             conf.put('logginglevel', temp)
+            temp = reader['main']['executor']
+            conf.put('executor', ExecutorFactory.generate(temp))
+            temp = reader['main'].get('slaves',1)
+            conf.put('slaves', int(temp))
             temp = reader['main']['stoptime']
             temp = self.process(temp)
             conf.put('stoptime', temp)
