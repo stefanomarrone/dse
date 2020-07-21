@@ -24,12 +24,14 @@ class SerialExecutor(Executor):
 
     def execute(self,simulator):
         retval = Analyser()
-        stop = Configuration().get('stoptime')
+        c = Configuration()
+        stop = c.get('stoptime')
         stopcondition = False
         counter = 0
         while (not stopcondition):
-            self.mark('ITERATION',counter)
-            record = simulator.main(stop)
+            #self.mark('ITERATION',counter)
+            logname = c.get('logtemplate') + '.' + str(counter)
+            record = simulator.main(logname,stop)
             retval.add(record)
             stopcondition = self.computeStopCondition(counter,retval)
             counter += 1
@@ -52,29 +54,29 @@ class ConvergenceExecutor(SerialExecutor):
         return stopcondition
 
 
-
 class ParallelExecutor(Executor):
     def core(self,payload):
-        simulator, counter = payload
-        print(Configuration())
-        stop = Configuration().get('stoptime')
-        print(stop)
-        self.mark('ITERATION', counter)
-        record = simulator.main(stop)
+        simulator, oldconf, counter = payload
+        conf = Configuration()
+        conf.mergeBoard(oldconf)
+        stop = conf.get('stoptime')
+        logname = conf.get('logtemplate') + '.' + str(counter)
+        record = simulator.main(logname,stop)
         return record
 
     def execute(self,simulator):
         retval = Analyser()
-        slaves = Configuration().get('slaves')
-        iters = Configuration().get('experiments')
+        conf = Configuration()
+        slaves = conf.get('slaves')
+        iters = conf.get('experiments')
         counters = range(0,iters)
-        counters = list(map(lambda x: (simulator,x),counters))
-        with Pool(slaves) as p:
-            temps = list(p.map(self.core, counters))
+        counters = list(map(lambda cnt: (simulator,conf,cnt),counters))
+        p = Pool(slaves)
+        temps = p.map(self.core, counters)
+        p.close()
         for t in temps:
             retval.add(t)
         return retval
-
 
 
 class ExecutorFactory():
@@ -89,5 +91,3 @@ class ExecutorFactory():
         f = ExecutorFactory.mapping[executorKind]
         retval = f()
         return retval
-
-

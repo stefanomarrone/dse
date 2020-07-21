@@ -40,7 +40,6 @@ class ConfigurationFactory(AbstractBoardFactory):
 
     def loadConfiguration(self,inifile):
         conf = Configuration()
-        print(conf)
         reader = ConfigParser()
         reader.read(inifile)
         try:

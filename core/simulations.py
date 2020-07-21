@@ -3,7 +3,7 @@ from core.measures import Recorder
 from core.boards import Configuration, Blackboard
 from core.maintenance import MaintainersFactroy
 from core.progresses import Progressor
-
+from core.log import LoggerFactory
 
 class AbstractArgumentFactory():
     def setup(self,iifiles,iindices):
@@ -22,6 +22,7 @@ class Simulation():
         # loading configuration files
         self.argumentFactory.setup(self.inifiles,self.indices)
         # running executor
+        Configuration().put('logtemplate',self.logTemplate)
         self.executor = Configuration().get('executor')
         ret = self.executor.execute(self)
         # Post running
@@ -34,10 +35,9 @@ class Simulation():
         fhandle.write(rep)
         fhandle.close()
 
-    def main(self, stop):
+    def main(self,logname,stop):
         # environment setup
         enviro = Environment()
-        print('Unforgiven II')
         Blackboard().put('enviro', enviro)
         # start recorder
         record = Recorder()
@@ -47,7 +47,9 @@ class Simulation():
         maintainers = MaintainersFactroy.generate(Configuration().get('[main]maintainers'))
         Blackboard().put('maintainers', maintainers)
         # setup of the simulation
+        LoggerFactory.setup(logname)
         self.loadScenario(enviro)
+        LoggerFactory.shutdown()
         # start the simulation
         enviro.run(until=stop)
         retval = record.generateRecord()

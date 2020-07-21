@@ -13,6 +13,12 @@ class Board():
     def merge(self,dic):
         self.board.update(dic)
 
+    def mergeBoard(self,dic):
+        self.board.update(dic.board)
+
+    def size(self):
+        return len(self.board.keys())
+
 
 class Blackboard(Board, metaclass=Singleton):
     def __init__(self):
@@ -22,6 +28,7 @@ class Blackboard(Board, metaclass=Singleton):
 class Configuration(Board, metaclass=Singleton):
     def __init__(self):
         super().__init__()
+
 
 
 class AbstractBoardFactory():

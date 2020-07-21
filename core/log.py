@@ -27,10 +27,6 @@ class Loggable():
     def __init__(self, nname):
         self.name = nname
         self.logger = logging.getLogger(nname)
-        #self.ch = logging.StreamHandler()
-        #formatter = logging.Formatter("%(name)s;%(levelname)s;%(message)s")
-        #self.ch.setFormatter(formatter)
-        #self.logger.addHandler(self.ch)
         self.env = Blackboard().get('enviro')
 
     def getName(self):
