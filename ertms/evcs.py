@@ -32,7 +32,7 @@ class EVCLogic(Behaviour):
         self.error = False
 
     def do(self):
-        if self.onrun == True:
+        if self.onrun:
             yield self.env.timeout(1)
             with self.private.request() as req:
                 yield req
@@ -46,7 +46,7 @@ class EVCLogic(Behaviour):
                     self.lastFreshness = vitality
                 else:
                     if downtime > 0:
-                        if self.error == False:
+                        if not self.error:
                             self.notify()
                         self.error = True
 

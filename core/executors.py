@@ -1,8 +1,7 @@
 from core.boards import Configuration
 from core.measures import Analyser
 from core.utils import mean
-from multiprocessing import Pool
-import logging
+from multiprocessing import Process, Queue, Semaphore
 
 
 class Executor():
@@ -11,7 +10,6 @@ class Executor():
 
     def mark(self,tag,counter):
         toprint = tag + ';' + str(counter) + ';'
-        logging.critical(toprint)
         print(toprint)
 
 
@@ -29,7 +27,7 @@ class SerialExecutor(Executor):
         stopcondition = False
         counter = 0
         while (not stopcondition):
-            #self.mark('ITERATION',counter)
+            self.mark('ITERATION',counter)
             logname = c.get('logtemplate') + '.' + str(counter)
             record = simulator.main(logname,stop)
             retval.add(record)
@@ -56,26 +54,40 @@ class ConvergenceExecutor(SerialExecutor):
 
 class ParallelExecutor(Executor):
     def core(self,payload):
-        simulator, oldconf, counter = payload
-        conf = Configuration()
-        conf.mergeBoard(oldconf)
-        stop = conf.get('stoptime')
-        logname = conf.get('logtemplate') + '.' + str(counter)
-        record = simulator.main(logname,stop)
-        return record
+        simulator, oldconf, counter, queue, sem = payload
+        with sem:
+        #sem.acquire()
+            print('io sono leggenda #' + str(counter))
+            conf = Configuration()
+            conf.mergeBoard(oldconf)
+            stop = conf.get('stoptime')
+            logname = conf.get('logtemplate') + '.' + str(counter)
+            record = simulator.main(logname,stop)
+            queue.put(record)
+            print("io non sono piu' leggenda #" + str(counter))
+        #sem.release()
 
     def execute(self,simulator):
         retval = Analyser()
         conf = Configuration()
         slaves = conf.get('slaves')
         iters = conf.get('experiments')
+        q = Queue()
+        s = Semaphore(slaves)
         counters = range(0,iters)
-        counters = list(map(lambda cnt: (simulator,conf,cnt),counters))
-        p = Pool(slaves)
-        temps = p.map(self.core, counters)
-        p.close()
-        for t in temps:
-            retval.add(t)
+        payloads = list(map(lambda cnt: (simulator,conf,cnt,q,s),counters))
+        processes = list()
+        for payload in payloads:
+            p = Process(target=self.core, args=(payload,))
+            processes.append(p)
+            p.start()
+        for process in processes:
+            process.join()
+#        p = Pool(slaves)
+#        temps = p.map(self.core, counters)
+#        p.close()
+        for c in counters:
+            retval.add(q.get())
         return retval
 
 

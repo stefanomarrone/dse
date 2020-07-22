@@ -2,7 +2,6 @@ from simpy import Environment
 from core.measures import Recorder
 from core.boards import Configuration, Blackboard
 from core.maintenance import MaintainersFactroy
-from core.progresses import Progressor
 from core.log import LoggerFactory
 
 class AbstractArgumentFactory():
@@ -42,7 +41,6 @@ class Simulation():
         # start recorder
         record = Recorder()
         record.reset()
-        p = Progressor()
         # setup maintenance
         maintainers = MaintainersFactroy.generate(Configuration().get('[main]maintainers'))
         Blackboard().put('maintainers', maintainers)

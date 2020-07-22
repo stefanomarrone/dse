@@ -32,7 +32,7 @@ class ETCS(Behaviour):
         self.status = FailureKind.Normal
         self.nextstatus = FailureKind.Normal
         self.dictionary = self.generateDictionary()
-        event = self.env.timeout(self.infinite- self.env.now - 1)
+        event = self.env.timeout(self.infinite- self.env.now - 0.01)
         event.callbacks.append(self.recordStateChange)
 
     def generateDictionary(self):
