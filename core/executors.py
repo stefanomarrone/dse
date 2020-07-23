@@ -56,16 +56,12 @@ class ParallelExecutor(Executor):
     def core(self,payload):
         simulator, oldconf, counter, queue, sem = payload
         with sem:
-        #sem.acquire()
-            print('io sono leggenda #' + str(counter))
             conf = Configuration()
             conf.mergeBoard(oldconf)
             stop = conf.get('stoptime')
             logname = conf.get('logtemplate') + '.' + str(counter)
             record = simulator.main(logname,stop)
             queue.put(record)
-            print("io non sono piu' leggenda #" + str(counter))
-        #sem.release()
 
     def execute(self,simulator):
         retval = Analyser()
@@ -83,9 +79,6 @@ class ParallelExecutor(Executor):
             p.start()
         for process in processes:
             process.join()
-#        p = Pool(slaves)
-#        temps = p.map(self.core, counters)
-#        p.close()
         for c in counters:
             retval.add(q.get())
         return retval
