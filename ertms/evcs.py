@@ -5,8 +5,8 @@ from core.measures import Recorder
 from core.boards import Blackboard
 
 class PrivateArea(Resource):
-    def __init__(self,env,capacity):
-        super().__init__(env,capacity)
+    def __init__(self,env):
+        super().__init__(env,1)
         self.lasttime = 0
         self.fresh = True
 
@@ -28,27 +28,28 @@ class EVCLogic(Behaviour):
         self.nretry = nnretry
         self.tretry = ttretry
         self.listeners = listeners
-        self.lastFreshness = True
+        self.lastFreshness = 0
         self.error = False
 
     def do(self):
-        if self.onrun:
-            yield self.env.timeout(1)
-            with self.private.request() as req:
-                yield req
-                freshness, vitality = self.private.getTime()
-                downtime = self.env.now - self.lastFreshness - self.tolerance()
-                if freshness:
-                    if self.error:
-                        Recorder().add(self.name, downtime)
-                        self.error = False
+        tofail = self.lastFreshness + self.tolerance() - self.env.now
+        waiting = tofail if not self.error else 1
+        yield self.env.timeout(waiting)
+        with self.private.request() as req:
+            yield req
+            freshness, vitality = self.private.getTime()
+            downtime = self.env.now - self.lastFreshness - self.tolerance()
+            if freshness:
+                if self.error:
+                    Recorder().add(self.name, downtime)
+                    self.error = False
+                    self.notify()
+                self.lastFreshness = vitality
+            else:
+                if downtime > 0:
+                    if not self.error:
                         self.notify()
-                    self.lastFreshness = vitality
-                else:
-                    if downtime > 0:
-                        if not self.error:
-                            self.notify()
-                        self.error = True
+                    self.error = True
 
 
     def tolerance(self):
@@ -90,7 +91,7 @@ class EVC():
         nretry = conf.get('[comm]num_retry')
         tretry = conf.get('[comm]t_retry')
         nvcontact = conf.get('[comm]tnv')
-        private = PrivateArea(env,1)
+        private = PrivateArea(env)
         self.server = EVCServer(nname + '_server',cchannel, private)
         self.logic = EVCLogic(nname + '_logic', nretry, tretry, nvcontact, private, [toetcs])
-        self.structure = Hardware(nname, comp, mttr, [toetcs], self.logic)
+        self.structure = Hardware(nname, comp, mttr, [toetcs])

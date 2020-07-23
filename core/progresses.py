@@ -3,7 +3,7 @@ from core.performing import Behaviour
 class Progressor(Behaviour):
     def __init__(self):
         super().__init__('Progressor')
-        self.period = self.infinite / 50
+        self.period = self.infinite / 10
 
     def run(self):
         while True:

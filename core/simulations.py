@@ -3,6 +3,8 @@ from core.measures import Recorder
 from core.boards import Configuration, Blackboard
 from core.maintenance import MaintainersFactroy
 from core.log import LoggerFactory
+from core.progresses import Progressor
+
 
 class AbstractArgumentFactory():
     def setup(self,iifiles,iindices):
@@ -46,9 +48,10 @@ class Simulation():
         Blackboard().put('maintainers', maintainers)
         # setup of the simulation
         LoggerFactory.setup(logname)
+        p = Progressor()
         self.loadScenario(enviro)
-        LoggerFactory.shutdown()
         # start the simulation
         enviro.run(until=stop)
+        LoggerFactory.shutdown()
         retval = record.generateRecord()
         return retval
