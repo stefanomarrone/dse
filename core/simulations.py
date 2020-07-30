@@ -5,7 +5,6 @@ from core.maintenance import MaintainersFactroy
 from core.log import LoggerFactory
 from core.progresses import Progressor
 
-
 class AbstractArgumentFactory():
     def setup(self,iifiles,iindices):
         pass

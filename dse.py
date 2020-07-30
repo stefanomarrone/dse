@@ -7,8 +7,9 @@ import os
 
 
 def core(inifile, maintfile, logfile, indicesfile):
-    list_files = subprocess.call(["python3", "dse.py", inifile, maintfile, logfile, indicesfile])
-
+    confFactory = ERTMSConfigurationFactory()
+    simulator = ERTMSSimulation([inifile, maintfile], logfile, indicesfile, confFactory)
+    simulator.run()
 
 if __name__ == "__main__":
     if len(sys.argv) == 5:
@@ -23,15 +24,12 @@ if __name__ == "__main__":
         directory = sys.argv[1]
         filenames = list(filter(lambda x: x.endswith('.ini'), os.listdir(directory)))
         filenames = list(map(lambda x: x[:-4],filenames))
-        jobs = list()
         for fn in filenames:
             cn = directory + fn + '.ini'
             mn = directory + fn + '.mnt'
             ln = directory + fn + '.log'
             xn = directory + fn + '.ind'
-            p = multiprocessing.Process(target=core, args=(cn, mn, ln, xn))
-            jobs.append(p)
-            p.start()
+            core(cn, mn, ln, xn)
     else:
         usage = sys.argv[0] + ' configuration maintenance logs indices'
         usage += 'or'
