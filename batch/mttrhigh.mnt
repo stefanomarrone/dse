@@ -1,0 +1,14 @@
+[main]
+maintainers = 2,int
+
+[evc]
+mttr = 5,hours
+
+[rbc]
+top = 180,mins;1,int
+GSMR = 50,mins;1,int
+WAN = 50,mins;1,int
+BUS = 65,mins;1,int
+POW = 50,mins;1,int
+VOT = 65,mins;1,int
+CPU = 50,mins;1,int
