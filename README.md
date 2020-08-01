@@ -44,7 +44,7 @@ The *dse.py* python programme takes as input 4 arguments:
 In alternative, one can just specify a folder (the *batch* folder is an example) that has to contain, for each experiment, the four files described previously, named respectively as [filename].ini, [filename].mnt, [filename].log and [filename].ind. If more filenames are specified (i.e. multiple experiments want to be executed), they will be run in series.
 
 Both maintenance and configuration files are handled by the python package [*configparser*](https://docs.python.org/3/library/configparser.html), so they follow the default schema accepted by the parser.
-A generic configuration file needs to have the following structure:
+A generic configuration file needs to have the following structure:  
 [SECTION]  
 attribute_1 = value_1  
 attribute_2 = value_2  
