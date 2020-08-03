@@ -52,11 +52,16 @@ class Component(Loggable):
         if (self.mttr > 0):
             self.request = repairman.request()
             #self.request = repairer.request(priority=self.priority)
-            self.info('calling the repairman;;')
+            self.info('repairman calling;;')
+            self.info('busy repairman;' + str(repairman.count) + ';')
             yield self.request
+            self.info('repairman called;;')
+            self.info('busy repairman;' + str(repairman.count) + ';')
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
+            self.info('repairman releasing;;')
             repairman.release(self.request)
+            self.info('busy repairman;' + str(repairman.count) + ';')
         else:
             yield self.env.process(self.waitForRepair(self.mttr))
 

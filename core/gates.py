@@ -85,11 +85,11 @@ class AndGate(Gate):
 
     def setSubcomponents(self, ssubcomponents):
         self.subcomponents = ssubcomponents
-        self.threshold = len(ssubcomponents)
+        self.threshold = len(self.subcomponents)
 
     def addSubcomponent(self, ssubcomponent):
         self.subcomponents.append(ssubcomponent)
-        self.threshold += 1
+        self.threshold = len(self.subcomponents)
 
 
 class KooNGate(Gate):

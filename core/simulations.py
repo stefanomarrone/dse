@@ -4,6 +4,8 @@ from core.boards import Configuration, Blackboard
 from core.maintenance import MaintainersFactroy
 from core.log import LoggerFactory
 from core.progresses import Progressor
+from core.watchdogs import WatchDog
+
 
 class AbstractArgumentFactory():
     def setup(self,iifiles,iindices):
@@ -50,7 +52,17 @@ class Simulation():
         p = Progressor()
         self.loadScenario(enviro)
         # start the simulation
+        #w = WatchDog(logname,3600,enviro)
+        #eve = w.getTrigger()
+        #timeout = enviro.timeout(stop)
+        #simulationStop = enviro.any_of([timeout,eve])
+        #enviro.run(simulationStop)
         enviro.run(until=stop)
+        #w.getObserver().stop()
+        # stop the simulation
         LoggerFactory.shutdown()
+        #retval = None
         retval = record.generateRecord()
         return retval
+
+

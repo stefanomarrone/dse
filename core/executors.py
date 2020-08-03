@@ -2,7 +2,7 @@ from core.boards import Configuration
 from core.measures import Analyser
 from core.utils import mean
 from multiprocessing import Process, Queue, Semaphore
-
+from threading import Timer
 
 class Executor():
     def execute(self,simulator):
@@ -11,7 +11,6 @@ class Executor():
     def mark(self,tag,counter):
         toprint = tag + ';' + str(counter) + ';'
         print(toprint)
-
 
 
 class SerialExecutor(Executor):
@@ -80,8 +79,11 @@ class ParallelExecutor(Executor):
         for process in processes:
             process.join()
         for c in counters:
-            retval.add(q.get())
+            ret = q.get()
+            if not ret is None:
+                retval.add(ret)
         return retval
+
 
 
 class ExecutorFactory():

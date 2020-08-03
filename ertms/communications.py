@@ -18,11 +18,11 @@ class Comm(Component):
         if (guess > self.unavail):
             yield self.env.timeout(self.tcomm)
             while (random() < self.perr):
-                self.info('errorInMessage;;')
+                self.debug('errorInMessage;;')
                 yield self.env.timeout(self.tcomm)
             self.queue.put(msg)
         else:
-            self.info('unavailabilityOfCommunication;;')
+            self.debug('unavailabilityOfCommunication;;')
 
     def get(self):
         msg = yield self.queue.get()

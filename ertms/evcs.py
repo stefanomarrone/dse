@@ -73,7 +73,7 @@ class EVCServer(Behaviour):
         self.shared = sshared
 
     def do(self):
-        if self.onrun == True:
+        if self.onrun:
             msg = yield self.env.process(self.channel.get())
             with self.shared.request() as req:
                 yield req
