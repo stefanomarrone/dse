@@ -56,6 +56,16 @@ class ConfigurationFactory(AbstractBoardFactory):
             temp = reader['main']['stoptime']
             temp = self.process(temp)
             conf.put('stoptime', temp)
+            # watchdog
+            temp = reader['main']['watchdog']
+            temp = self.process(temp)
+            conf.put('watchdog[period]', temp)
+            temp = reader['main']['monitorperiod']
+            temp = self.process(temp)
+            conf.put('watchdog[monitorperiod]', temp)
+            temp = reader['main']['monitorflag']
+            temp = self.process(temp)
+            conf.put('watchdog[monitorflag]', temp)
             # loading the numbers of the elements
             temp = self.loadSection(reader,'ertms')
             conf.merge(temp)
