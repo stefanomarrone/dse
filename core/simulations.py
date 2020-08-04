@@ -3,8 +3,7 @@ from core.measures import Recorder
 from core.boards import Configuration, Blackboard
 from core.maintenance import MaintainersFactroy
 from core.log import LoggerFactory
-from core.progresses import Progressor
-from core.watchdogs import WatchDog
+from core.watchdogs import WatchDog, Progressor
 
 
 class AbstractArgumentFactory():

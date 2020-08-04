@@ -1,7 +1,23 @@
+from core.performing import Behaviour
 from threading import Timer
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from simpy import Event
+
+
+
+class Progressor(Behaviour):
+    def __init__(self):
+        super().__init__('Progressor')
+        self.period = self.infinite / 1000
+
+    def run(self):
+        while True:
+            yield self.env.timeout(self.period)
+            ratio = float(self.env.now) / float(self.infinite)
+            print('Percentage ' + str(ratio * 100) + "%")
+
+
 
 class WatchDogTimer:
     def __init__(self, ttimeout, eevent):  # timeout in seconds
