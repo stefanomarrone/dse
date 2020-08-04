@@ -35,6 +35,7 @@ class AbstractBoardFactory():
     def __init__(self):
         self.mapping = {
             'years': self.years,
+            'mins': self.mins,
             'days': self.days,
             'hours': self.hours,
             'secs': float,
@@ -42,7 +43,7 @@ class AbstractBoardFactory():
             'float': float,
             'm_sec': float,
             'km_h': self.kmh,
-            'bool': bool,
+            'bool': self.bools,
             'km': self.km
         }
 
@@ -62,6 +63,14 @@ class AbstractBoardFactory():
     def days(self,dys):
         temp = 24 * float(dys)
         temp = self.hours(temp)
+        return temp
+
+    def bools(self,str):
+        temp = str == 'True'
+        return temp
+
+    def mins(self,dys):
+        temp = 60 * float(dys)
         return temp
 
     def split(self,value):
