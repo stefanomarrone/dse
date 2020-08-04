@@ -27,10 +27,11 @@ The whole framework is written in Python language (version 3.7). The packages th
 
 ## Replication package
 
-The *batch* folder is the replication folder. It contains:
-* 
-
-
+The *replication* folder contains the material to demonstrate what reported in the published and submitted scientific papers related to the tool. At this date, the folder is fully devoted to the paper submitted to RSDA 2020 workshop. It contains:
+* a *config.ini* of the ERTMS/ETCS case study
+* a *maintenance.ini* of the ERTMS/ETCS case study
+* a *indices.log* the file containing the quantitative metrics of the case study
+* four *output.log.*** that reports the four executions requested in the config.ini.
 
 
 ## Usage
