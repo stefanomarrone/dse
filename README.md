@@ -31,7 +31,7 @@ The *replication* folder contains the material to demonstrate what reported in t
 * a *config.ini* of the ERTMS/ETCS case study
 * a *maintenance.ini* of the ERTMS/ETCS case study
 * a *indices.log* the file containing the quantitative metrics of the case study
-* four *output.log.*** that reports the four executions requested in the config.ini.
+* four *output.log.** that reports the four executions requested in the config.ini.
 
 
 ## Usage
