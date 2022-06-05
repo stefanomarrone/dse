@@ -7,7 +7,7 @@ from ertms.rbcs import RBC
 from core.boards import Configuration
 from simpy import Store
 
-class ERTMSConfigurationFactory(AbstractArgumentFactory):
+class RadarConfigurationFactory(AbstractArgumentFactory):
 
     def setup(self,iifiles,iindices):
         cfile = iifiles[0]
