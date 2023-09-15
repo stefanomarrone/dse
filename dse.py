@@ -35,3 +35,4 @@ if __name__ == "__main__":
         usage += 'or'
         usage += sys.argv[0] + ' directory'
         print(usage)
+    exit(0)
