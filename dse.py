@@ -1,25 +1,36 @@
 import sys
 from ertms.ertms_sim import ERTMSSimulation, ERTMSConfigurationFactory
+from applications.app_sim import AppSimulation, AppConfigurationFactory
 import subprocess
 import multiprocessing
 import sys
 import os
 
 
-def core(inifile, maintfile, logfile, indicesfile):
-    confFactory = ERTMSConfigurationFactory()
-    simulator = ERTMSSimulation([inifile, maintfile], logfile, indicesfile, confFactory)
+switch = {
+    'ertms': (ERTMSConfigurationFactory,ERTMSSimulation),
+    'signals': (AppConfigurationFactory,AppSimulation)
+}
+
+def core(switchkey, inifile, maintfile, logfile, indicesfile):
+    configuratorname, simulatorname = switch[switchkey]
+    confFactory = configuratorname()
+    simulator = simulatorname([inifile, maintfile], logfile, indicesfile, confFactory)
     simulator.run()
 
 if __name__ == "__main__":
-    if len(sys.argv) == 5:
-        config = sys.argv[1]
-        maint = sys.argv[2]
-        log = sys.argv[3]
-        indices = sys.argv[4]
-        confFactory = ERTMSConfigurationFactory()
-        simulator = ERTMSSimulation([config, maint], log, indices, confFactory)
-        simulator.run()
+    #todo: refactoring della funzione
+    if len(sys.argv) == 6:
+        actualswitch = sys.argv[1]
+        cn = sys.argv[2]
+        mn = sys.argv[3]
+        ln = sys.argv[4]
+        xn = sys.argv[5]
+        core(actualswitch, cn, mn, ln, xn)
+        #todo: dopo il refactoring eliminare le righe commentate
+        # confFactory = ERTMSConfigurationFactory()
+        # simulator = ERTMSSimulation([config, maint], log, indices, confFactory)
+        # simulator.run()
     elif len(sys.argv) == 2:
         directory = sys.argv[1]
         filenames = list(filter(lambda x: x.endswith('.ini'), os.listdir(directory)))
