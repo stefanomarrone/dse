@@ -82,6 +82,7 @@ class Component(Loggable):
                 except Interrupt as i:
                     kind, source = utils.unpack_interrupt(i.cause)
                     self.working = not (kind == 'F')
+                    self.faultPropagation()
             while (self.working == False):
                 try:
                     self.info('is down;;')
