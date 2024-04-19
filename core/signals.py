@@ -42,7 +42,7 @@ class Signal(Behaviour):
 
     def update(self):
         self.value = self.signalgenerator(self.env.now)
-        self.info('value update;' + str(self.value) + ';')
+        self.value_acquired('value update;' + str(self.value) + ';')
 
     def do(self):
         yield self.env.timeout(self.deltatime)

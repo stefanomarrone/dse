@@ -87,7 +87,7 @@ class TopPerforming(OrGate):
             b.process.interrupt()
 
     def repairPropagation(self):
-        self.warning('repairing;;')
+        self.repair('repairing;;')
         self.notify()
         Recorder().add(self.getMeasureName(),self.env.now - self.lastuptime)
         super().repairPropagation()

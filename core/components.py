@@ -52,16 +52,16 @@ class Component(Loggable):
         if (self.mttr > 0):
             self.request = repairman.request()
             #self.request = repairer.request(priority=self.priority)
-            self.info('repairman calling;;')
-            self.info('busy repairman;' + str(repairman.count) + ';')
+            self.repair('repairman calling;;')
+            self.repair('busy repairman;' + str(repairman.count) + ';')
             yield self.request
-            self.info('repairman called;;')
-            self.info('busy repairman;' + str(repairman.count) + ';')
+            self.repair('repairman called;;')
+            self.repair('busy repairman;' + str(repairman.count) + ';')
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
-            self.info('repairman releasing;;')
+            self.repair('repairman releasing;;')
             repairman.release(self.request)
-            self.info('busy repairman;' + str(repairman.count) + ';')
+            self.repair('busy repairman;' + str(repairman.count) + ';')
         else:
             yield self.env.process(self.waitForRepair(self.mttr))
 
@@ -76,7 +76,7 @@ class Component(Loggable):
                 try:
                     self.info('is working;;')
                     yield self.env.process(self.fail())
-                    self.info('has failed by itself;;')
+                    self.error('has failed by itself;;')
                     self.working = False
                     self.faultPropagation()
                 except Interrupt as i:
@@ -85,18 +85,18 @@ class Component(Loggable):
                     self.faultPropagation()
             while (self.working == False):
                 try:
-                    self.info('is down;;')
+                    self.error('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except Interrupt as i:
                     (kind, source) = utils.unpack_interrupt(i.cause)
-                    self.info('repaired by extern;' + str((kind, source)))
+                    self.repair('repaired by extern;' + str((kind, source)))
                 finally:
                     self.working = True
 
     def upFaultPropagation(self):
         if (self.owner != None):
             if (self.owner.working == True):
-                self.info('is breaking;' + self.owner.getName() + ';')
+                self.critical('is breaking;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(F)')
 
     def downFaultPropagation(self):
