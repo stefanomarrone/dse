@@ -23,6 +23,8 @@ class Condition(Loggable):
             for l in self.listeners:
                 l.process.interrupt(self.signal.name + '(F)')
 
+
+
 class Signal(Behaviour):
     def __init__(self, nname, ffunction, cconditiondb):
         super().__init__(nname)
@@ -41,7 +43,12 @@ class Signal(Behaviour):
             self.conditions.append(cond)
 
     def update(self):
-        self.value = self.signalgenerator(self.env.now)
+        delta=list()
+        for c in self.conditions:
+            for l in c.listeners:
+                delta.append(l.faultStartTime)
+        delta_time=max(delta)
+        self.value = round(self.signalgenerator(self.env.now-delta_time),5)
         self.value_acquired('value update;' + str(self.value) + ';')
 
     def do(self):

@@ -52,18 +52,21 @@ class Component(Loggable):
         if (self.mttr > 0):
             self.request = repairman.request()
             #self.request = repairer.request(priority=self.priority)
-            self.repair('repairman calling;;')
-            self.repair('busy repairman;' + str(repairman.count) + ';')
+            self.maintenance_action('repairman calling;;')
+            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             yield self.request
-            self.repair('repairman called;;')
-            self.repair('busy repairman;' + str(repairman.count) + ';')
+            self.maintenance_action('repairman called;;')
+            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
-            self.repair('repairman releasing;;')
+            self.maintenance_action('repaired;;')
+            self.maintenance_action('repairman releasing;;')
             repairman.release(self.request)
-            self.repair('busy repairman;' + str(repairman.count) + ';')
+            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
+
         else:
             yield self.env.process(self.waitForRepair(self.mttr))
+
 
 
     def boot(self):
@@ -81,23 +84,42 @@ class Component(Loggable):
                     self.faultPropagation()
                 except Interrupt as i:
                     kind, source = utils.unpack_interrupt(i.cause)
+                    if (self.name == 'X_top' and (source == 'X_C3s' or source == 'X_C2s')):
+                        print('hey')
+                    if (self.name == 'X_C10' and source == 'sigA'):
+                        print('hey')
+                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
                     self.working = not (kind == 'F')
                     self.faultPropagation()
+
+                    '''
+                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
+                    self.working = False
+                    self.info('will continue?;' + str(self.working) + ';')
+                finally:
+                    if (self.working == False):
+                        self.faultPropagation()
+                    '''
             while (self.working == False):
                 try:
                     self.error('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except Interrupt as i:
                     (kind, source) = utils.unpack_interrupt(i.cause)
-                    self.repair('repaired by extern;' + str((kind, source)))
+                    self.maintenance_action('repaired by extern;' + str((kind, source)))
+
                 finally:
                     self.working = True
 
+
+
     def upFaultPropagation(self):
+
         if (self.owner != None):
             if (self.owner.working == True):
-                self.critical('is breaking;' + self.owner.getName() + ';')
+                self.warning('is breaking;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(F)')
+
 
     def downFaultPropagation(self):
         pass

@@ -7,10 +7,10 @@ class Hardware():
         middles = list()
         # creating subgroups
         for c in components:
-            tag, number, koon, mtbf, c_mttr = self.extractInformation(c)
+            tag, number, koon, mtbf, c_mttr = self.extractInformation(c,systemname)
             names = systemname + '_' + tag + 's'
             subs = list()
-            self.components[names] = KooNGate(names,koon)
+            self.components[names] = KooNGate(names,koon,mtbf,c_mttr)
             middles.append(self.components[names])
             for i in range(0,number):
                 name = systemname + '_' + tag + str(i)
@@ -25,9 +25,13 @@ class Hardware():
         for m in middles:
             m.setOwner(self.components[self.topname])
 
-    def extractInformation(self, component):
+    def extractInformation(self, component,systemname):
         tag, number, koon, mtbf = component
-        return tag, number, koon, mtbf, 0
+        conf = Configuration()
+        c='['+ systemname+ ']'
+
+        mttr=conf.get(c + component[0]+'_mttr')
+        return tag, number, koon, mtbf, mttr
 
     def addBehaviour(self, behaviour):
         self.components[self.topname].addBehaviour(behaviour)

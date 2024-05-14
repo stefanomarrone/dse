@@ -65,7 +65,7 @@ class Loggable():
         tosend = str(self.env.now) + ';' + msg
         if sys.is_finalizing() == False:
             self.logger.log(21,tosend)
-    def repair(self, msg):
+    def maintenance_action(self, msg):
         tosend = str(self.env.now) + ';' + msg
         if sys.is_finalizing() == False:
             self.logger.log(25,tosend)

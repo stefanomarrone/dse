@@ -2,7 +2,7 @@ import random
 import numpy
 import statistics
 from scipy.stats import sem, t
-
+import configparser
 
 def lottery(probabilities):
     ssum = 0
@@ -55,3 +55,6 @@ def confidence99(data):
 
 def zero(arg):
     return 0
+
+
+

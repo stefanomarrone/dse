@@ -43,7 +43,7 @@ class Gate(Component):
                 sub.process.interrupt(self.getName() + '(R)')
         if (self.owner != None):
             if (self.owner.canWork() == True):
-                self.info('la sua riparazione ha fatto si che ritornasse;' + self.owner.getName() + ';')
+                self.info('Its recovery makes the owner up;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(R)')
 
 
@@ -62,7 +62,11 @@ class Gate(Component):
                     self.working = False
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)
-                    self.info('is receiving an interrupt;' + str(i.cause) + ';')
+                    if (self.name == 'X_top' and (sender =='X_C3s' or sender =='X_C2s')):
+                        print('hey')
+                    if (self.name == 'X_C10' and sender =='sigA'):
+                        print('hey')
+                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
                     self.working = self.isStillWorking(sender)
                     self.info('will continue?;' + str(self.working) + ';')
                 finally:
@@ -70,7 +74,7 @@ class Gate(Component):
                         self.faultPropagation()
             while self.working == False:
                 try:
-                    self.info('is down;;')
+                    self.error('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)
