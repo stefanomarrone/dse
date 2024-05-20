@@ -39,11 +39,11 @@ class Gate(Component):
     def repairPropagation(self):
         for sub in self.subcomponents:
             if (sub.working == False):
-                self.info('is restoring;' + sub.getName() + ';')
+                self.debug('is restoring;' + sub.getName() + ';')
                 sub.process.interrupt(self.getName() + '(R)')
         if (self.owner != None):
             if (self.owner.canWork() == True):
-                self.info('Its recovery makes the owner up;' + self.owner.getName() + ';')
+                self.debug('Its recovery makes the owner up;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(R)')
 
 
@@ -51,6 +51,54 @@ class Gate(Component):
         return not self.thresholdReached()
 
     def run(self):
+        self.boot()
+        while True:
+            while (self.working == True):
+                try:
+                    self.info(self.state+';;')
+                    yield self.env.process(self.fail())
+                    self.info('has failed by itself;;')
+                    self.state='is down'
+                    self.info(self.state+';;')
+                    self.working = False
+                    self.faultPropagation()
+                    yield self.env.process(self.repair(self.repairman))
+                    self.state='is up'
+                    self.working=True
+                    self.repairPropagation()
+                except simpy.Interrupt as i:
+                    (kind, sender) = utils.unpack_interrupt(i.cause)
+                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
+                    if(kind=='F'):
+                        self.working = self.isStillWorking(sender)
+                        self.debug('will continue?;' + str(self.working) + ';')
+                        if(self.working==False):
+                            self.state='is down'
+                            self.info(self.state+';;')
+                            self.faultPropagation()
+                            wait=self.env.event()
+                            while True:
+                                try:
+                                    yield wait  # Attesa indefinita fino a un nuovo interrupt
+                                except simpy.Interrupt as i:
+                                    kind, sender = utils.unpack_interrupt(i.cause)
+                                    self.warning(f'is receiving an interrupt; {str(i.cause)}')
+                                    self.working=self.canWork()
+                                    if kind == 'R' and self.working:
+                                        self.state='is up;;'
+                                        self.repairPropagation()
+                                        break
+                        else:
+                            self.state='is failing'
+                            self.info(self.state+';;')
+
+
+
+
+'''
+STEFANO VERSION
+
+  def run(self):
         self.boot()
         while True:
             self.working = True
@@ -62,10 +110,15 @@ class Gate(Component):
                     self.working = False
                 except simpy.Interrupt as i:
                     (kind, sender) = utils.unpack_interrupt(i.cause)
-                    if (self.name == 'X_top' and (sender =='X_C3s' or sender =='X_C2s')):
+                    if (self.name == 'X_C3s' and sender == 'X_top'):
                         print('hey')
-                    if (self.name == 'X_C10' and sender =='sigA'):
+                    if (self.name == 'X_top' and sender == 'X_C2s'):
                         print('hey')
+                    if (self.name == 'X_top' and sender == 'X_C3s'):
+                        print('hey')
+                        if (self.name == 'X_top' and sender == 'X_C1s'):
+                            print('hey')
+
                     self.warning('is receiving an interrupt;' + str(i.cause) + ';')
                     self.working = self.isStillWorking(sender)
                     self.info('will continue?;' + str(self.working) + ';')
@@ -77,10 +130,18 @@ class Gate(Component):
                     self.error('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except simpy.Interrupt as i:
+                    # gestire qua dentro sia quando sono stato rotto dalle subcomponent sia quando sono stato rotto dalle top component
                     (kind, sender) = utils.unpack_interrupt(i.cause)
                 finally:
                     self.working = True
                     self.repairPropagation()
+
+
+
+
+'''
+
+
 
 
 class AndGate(Gate):

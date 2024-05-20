@@ -1,3 +1,5 @@
+from simpy import Interrupt
+import core.utils as utils
 from core.boards import Configuration
 from core.log import Loggable
 from core.performing import Behaviour
@@ -20,9 +22,24 @@ class Condition(Loggable):
     def execute(self, time, value):
         flag = self.conditionevaluator(time, value)
         if flag:
+            #self.signal.onrun = False
+            #self.signal.process.interrupt(self.signal.name + '(F)')
             for l in self.listeners:
-                l.process.interrupt(self.signal.name + '(F)')
+                if(l.working==True):
+                    l.process.interrupt(self.signal.name + '(F)')
 
+
+
+'''
+    def restartWorking(self):
+
+        self.signal.onrun=all(llisteners.working for llisteners in self.listeners)
+        if(self.signal.onrun==True):
+            self.signal.process.interrupt(self.signal.name+'(R)')
+
+
+
+'''
 
 
 class Signal(Behaviour):
@@ -57,3 +74,37 @@ class Signal(Behaviour):
             self.update()
             for c in self.conditions:
                 c.execute(self.env.now,self.value)
+
+
+
+    '''cancella da qua in poi'''
+
+
+
+
+'''
+    def rework(self):
+        for c in self.conditions:
+            c.restartWorking()
+
+    def run(self):
+        self.boot()
+        while True:
+            while(self.onrun):
+                try:
+                    yield self.env.process(self.do())
+
+                except Interrupt as i:
+                    kind, source = utils.unpack_interrupt(i.cause)
+                    self.onrun = False
+
+            while(not self.onrun):
+                try:
+
+                    yield self.env.process(self.rework())
+                except Interrupt as i:
+                    (kind, source) = utils.unpack_interrupt(i.cause)
+
+
+
+'''

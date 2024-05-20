@@ -13,6 +13,7 @@ class Component(Loggable):
         conf = Configuration()
         self.finalTime = conf.get('stoptime')
         self.working = True
+        self.state = 'is up'
         self.process = self.env.process(self.run())
         self.faultStartTime = self.env.now
         self.repairStartTime = self.env.now
@@ -43,7 +44,7 @@ class Component(Loggable):
 
     def faultPropagation(self):
         self.upFaultPropagation()
-        self.downFaultPropagation()
+        #self.downFaultPropagation()
 
     def fail(self):
         yield self.env.process(self.waitForFault(self.mtbf))
@@ -52,17 +53,19 @@ class Component(Loggable):
         if (self.mttr > 0):
             self.request = repairman.request()
             #self.request = repairer.request(priority=self.priority)
-            self.maintenance_action('repairman calling;;')
-            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
+            #self.maintenance_action('repairman calling;;')
+            #self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             yield self.request
             self.maintenance_action('repairman called;;')
-            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
+            #self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
-            self.maintenance_action('repaired;;')
-            self.maintenance_action('repairman releasing;;')
+                #cancella questi due
+                self.working=True
+                self.maintenance_action('repaired;;')
+            #self.maintenance_action('repairman releasing;;')
             repairman.release(self.request)
-            self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
+            #self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
 
         else:
             yield self.env.process(self.waitForRepair(self.mttr))
@@ -77,39 +80,52 @@ class Component(Loggable):
         while True:
             while (self.working == True):
                 try:
-                    self.info('is working;;')
+                    self.info(self.state+';;')
                     yield self.env.process(self.fail())
                     self.error('has failed by itself;;')
+                    self.state='is down'
+                    self.info(self.state+';;')
                     self.working = False
                     self.faultPropagation()
                 except Interrupt as i:
                     kind, source = utils.unpack_interrupt(i.cause)
-                    if (self.name == 'X_top' and (source == 'X_C3s' or source == 'X_C2s')):
-                        print('hey')
-                    if (self.name == 'X_C10' and source == 'sigA'):
-                        print('hey')
-                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
+                    self.debug('is receiving an interrupt;' + str(i.cause) + ';')
                     self.working = not (kind == 'F')
-                    self.faultPropagation()
+                    if(kind=='R'):
+                        self.state = 'is up'
+                    else:
+                        if(self.working):
+                            self.state='is failing'
+                            self.info(self.state + ';;')
+                        else:
+                            self.state = 'is down'
+                            self.info(self.state + ';;')
+                            self.faultPropagation()
 
-                    '''
-                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
-                    self.working = False
-                    self.info('will continue?;' + str(self.working) + ';')
-                finally:
-                    if (self.working == False):
-                        self.faultPropagation()
-                    '''
+
+
             while (self.working == False):
                 try:
-                    self.error('is down;;')
                     yield self.env.process(self.repair(self.repairman))
                 except Interrupt as i:
                     (kind, source) = utils.unpack_interrupt(i.cause)
                     self.maintenance_action('repaired by extern;' + str((kind, source)))
+                    '''
+                    if(str(i.cause).startswith('sig')):
+                        self.maintenance_action('repaired after signals;' + str((kind, source)))
+                        #self.env.process(self.repair(self.repairman))
+                        #self.working = True
+                    else:
+                        self.maintenance_action('repaired by extern;' + str((kind, source)))
+                        #cancella rigo qui
+                    '''
+
 
                 finally:
-                    self.working = True
+                    self.working=True
+                    self.state = 'is up'
+                    self.repairPropagation()
+
 
 
 
@@ -117,9 +133,17 @@ class Component(Loggable):
 
         if (self.owner != None):
             if (self.owner.working == True):
-                self.warning('is breaking;' + self.owner.getName() + ';')
+                self.debug('is breaking;' + self.owner.getName() + ';')
                 self.owner.process.interrupt(self.getName() + '(F)')
 
 
     def downFaultPropagation(self):
         pass
+
+
+#cancella
+    def repairPropagation(self):
+        if (self.owner != None):
+            if (self.owner.working == False and self.owner.canWork() == True):
+                self.debug('Its recovery makes the owner up;' + self.owner.getName() + ';')
+                self.owner.process.interrupt(self.getName() + '(R)')
