@@ -79,7 +79,7 @@ class TopPerforming(OrGate):
         self.behaviours.append(behave)
 
     def faultPropagation(self):
-        self.warning('breaking;;')
+        #self.warning('breaking;;')
         self.lastuptime = self.env.now
         self.notify()
         super().faultPropagation()
@@ -87,7 +87,7 @@ class TopPerforming(OrGate):
             b.process.interrupt()
 
     def repairPropagation(self):
-        self.repair('repairing;;')
+        #self.repair('repairing;;')
         self.notify()
         Recorder().add(self.getMeasureName(),self.env.now - self.lastuptime)
         super().repairPropagation()
