@@ -3,6 +3,7 @@ import core.utils as utils
 from core.boards import Configuration
 from core.log import Loggable
 from core.performing import Behaviour
+import random
 
 
 class Condition(Loggable):
@@ -26,6 +27,7 @@ class Condition(Loggable):
             #self.signal.process.interrupt(self.signal.name + '(F)')
             self.signal.caseid=self.signal.caseid+1
             self.caseidPropagation()
+            random.shuffle(self.listeners)
             for l in self.listeners:
                 if(l.working==True):
                     l.process.interrupt(self.signal.name + '(F)')
@@ -81,7 +83,7 @@ class Signal(Behaviour):
         counter_max=max(counter)
         self.value = round(self.signalgenerator(self.env.now-delta_time,counter_max),5)
         if(not (all(state == "is down" for state in states))):
-            self.value_acquired(str(self.caseid)+';'+'value update;' + str(self.value) )
+            self.value_acquired(str(self.caseid)+';'+';' + str(self.value) )
 
     def do(self):
         yield self.env.timeout(self.deltatime)

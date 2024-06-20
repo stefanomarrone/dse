@@ -76,7 +76,7 @@ class Gate(Component):
 
                     #self.info(str(self.caseid)+';'+self.state+';;')
                     yield self.env.process(self.fail())
-                    self.info(str(self.caseid)+';'+'failed by itself;;')
+                    #self.info(str(self.caseid)+';'+'failed by itself;;')
                     yield self.env.timeout(1)
                     self.state='is down'
                     self.faultCounter+=1
@@ -100,9 +100,9 @@ class Gate(Component):
                     #self.warning(str(self.caseid)+';''is receiving an interrupt;' + str(i.cause) )
                     if(kind=='F'):
                         self.working = self.isStillWorking(sender)
+                        yield self.env.timeout(1)
                         #self.debug(str(self.caseid)+';'+'will continue?;' + str(self.working))
                         if(self.working==False):
-                            yield self.env.timeout(1)
                             self.state='is down'
                             self.faultCounter+=1
                             self.info(str(self.caseid-1)+';'+self.state+';;')
@@ -117,12 +117,17 @@ class Gate(Component):
                                     #self.warning(str(self.caseid)+';'+f'is receiving an interrupt; {str(i.cause)}')
                                     self.working=self.canWork()
                                     if kind == 'R' and self.working:
-                                        self.state='is up'
-                                        self.info(str(self.caseid-1) + ';' + self.state + ';;')
+                                        if(any([x.state!='is down' for x in self.subcomponents])):
+                                            self.state='is failing'
+                                        else:
+                                            self.state='is up'
+
                                         yield self.env.timeout(1)
+                                        self.info(str(self.caseid - 1) + ';' + self.state + ';;')
                                         self.repairPropagation()
                                         break
                         else:
+
                             self.state='is failing'
                             #yield self.env.timeout(1)
                             self.info(str(self.caseid-1)+';'+self.state+';;')
@@ -134,55 +139,6 @@ class Gate(Component):
                         self.info(str(self.caseid-1) + ';' + self.state + ';;')
                         self.working=True
 
-
-
-
-
-'''
-STEFANO VERSION
-
-  def run(self):
-        self.boot()
-        while True:
-            self.working = True
-            while (self.working == True):
-                try:
-                    self.info('is up;;')
-                    yield self.env.process(self.fail())
-                    self.info('has failed by itself;;')
-                    self.working = False
-                except simpy.Interrupt as i:
-                    (kind, sender) = utils.unpack_interrupt(i.cause)
-                    if (self.name == 'X_C3s' and sender == 'X_top'):
-                        print('hey')
-                    if (self.name == 'X_top' and sender == 'X_C2s'):
-                        print('hey')
-                    if (self.name == 'X_top' and sender == 'X_C3s'):
-                        print('hey')
-                        if (self.name == 'X_top' and sender == 'X_C1s'):
-                            print('hey')
-
-                    self.warning('is receiving an interrupt;' + str(i.cause) + ';')
-                    self.working = self.isStillWorking(sender)
-                    self.info('will continue?;' + str(self.working) + ';')
-                finally:
-                    if (self.working == False):
-                        self.faultPropagation()
-            while self.working == False:
-                try:
-                    self.error('is down;;')
-                    yield self.env.process(self.repair(self.repairman))
-                except simpy.Interrupt as i:
-                    # gestire qua dentro sia quando sono stato rotto dalle subcomponent sia quando sono stato rotto dalle top component
-                    (kind, sender) = utils.unpack_interrupt(i.cause)
-                finally:
-                    self.working = True
-                    self.repairPropagation()
-
-
-
-
-'''
 
 
 

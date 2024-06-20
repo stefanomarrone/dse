@@ -3,6 +3,6 @@ maintainers = 2,int
 
 [X]
 top = 90,mins;1,int
-C1 = 1000,mins;1,int
-C2 = 1000,mins;1,int
-C3 = 1000,mins;1,int
+C1 = 50,mins;1,int
+C2 = 50,mins;1,int
+C3 = 50,mins;1,int

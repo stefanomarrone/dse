@@ -59,7 +59,7 @@ class Component(Loggable):
             #self.maintenance_action('repairman calling;;')
             #self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             yield self.request
-            #self.maintenance_action(str(self.caseid)+';'+'repairman called;;')
+            #self.maintenance_action(str(self.caseid-1)+';'+'under repair;;')
             #self.maintenance_action('busy repairman;' + str(repairman.count) + ';')
             if (self.working == False):
                 yield self.env.process(self.waitForRepair(self.mttr))
@@ -86,7 +86,7 @@ class Component(Loggable):
 
                     #self.info(str(self.caseid)+';'+self.state+';;')
                     yield self.env.process(self.fail())
-                    self.info(str(self.caseid)+';'+'failed by itself;;')
+                    #self.info(str(self.caseid)+';'+'failed by itself;;')
                     yield self.env.timeout(1)
                     self.state='is down'
                     if(self.owner and self.owner.state!='is failing'):
@@ -105,8 +105,8 @@ class Component(Loggable):
 
 
                     if(kind=='R'):
-                        self.state='is repaired'
-                        self.info(str(self.caseid-1) + ';' + self.state + ';;')
+                        #self.state='is repaired'
+                        #self.info(str(self.caseid-1) + ';' + self.state + ';;')
                         self.state = 'is up'
                         self.info(str(self.caseid-1) + ';' + self.state + ';;')
                     else:
@@ -183,9 +183,11 @@ class Component(Loggable):
                 #self.debug(str(self.caseid)+';'+'Its recovery makes the owner up;' + self.owner.getName() )
                 #yield self.env.timeout(1)
                 self.owner.process.interrupt(str(self.caseid)+';'+self.getName() + '(R)')
+            '''
             if(self.owner.state=='is failing'):
                 self.owner.state='is up'
                 self.owner.info(str(self.owner.caseid-1) + ';' + self.state + ';;')
+            '''
 
     def upCaseidPropagation(self):
         if (self.owner and self.owner.caseid<self.caseid):
