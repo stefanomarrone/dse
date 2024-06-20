@@ -86,6 +86,13 @@ class ConfigurationFactory(AbstractBoardFactory):
             for s in submodels:
                 temp = self.loadSection(reader,s)
                 conf.merge(temp)
+                for model,structure in temp.items():
+                    components= [comp[0] for comp in structure]
+                    conf.put('components', components)
+                    for c in components:
+                        temp = self.loadSection(reader, c)
+                        conf.merge(temp)
+
             signals = self.tolist(reader['main']['signals'])
             conf.put('signals', signals)
             for s in signals:

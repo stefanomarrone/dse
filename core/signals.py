@@ -69,16 +69,19 @@ class Signal(Behaviour):
     def update(self):
         delta=list()
         counter=list()
+        states=list()
         for c in self.conditions:
             for l in c.listeners:
                 delta.append(l.faultStartTime)
                 counter.append(l.faultCounter)
+                states.append(l.state)
             self.caseid=l.caseid
 
-        delta_time=max(delta)
+        delta_time=min(delta)
         counter_max=max(counter)
         self.value = round(self.signalgenerator(self.env.now-delta_time,counter_max),5)
-        self.value_acquired(str(self.caseid)+';'+'value update;' + str(self.value) )
+        if(not (all(state == "is down" for state in states))):
+            self.value_acquired(str(self.caseid)+';'+'value update;' + str(self.value) )
 
     def do(self):
         yield self.env.timeout(self.deltatime)

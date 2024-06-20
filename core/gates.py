@@ -76,7 +76,8 @@ class Gate(Component):
 
                     #self.info(str(self.caseid)+';'+self.state+';;')
                     yield self.env.process(self.fail())
-                    #self.info(str(self.caseid)+';'+'has failed by itself;;')
+                    self.info(str(self.caseid)+';'+'failed by itself;;')
+                    yield self.env.timeout(1)
                     self.state='is down'
                     self.faultCounter+=1
                     self.info(str(self.caseid)+';'+self.state+';;')
@@ -101,6 +102,7 @@ class Gate(Component):
                         self.working = self.isStillWorking(sender)
                         #self.debug(str(self.caseid)+';'+'will continue?;' + str(self.working))
                         if(self.working==False):
+                            yield self.env.timeout(1)
                             self.state='is down'
                             self.faultCounter+=1
                             self.info(str(self.caseid-1)+';'+self.state+';;')

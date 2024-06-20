@@ -86,11 +86,13 @@ class Component(Loggable):
 
                     #self.info(str(self.caseid)+';'+self.state+';;')
                     yield self.env.process(self.fail())
-                    #self.info(str(self.caseid)+';'+'has failed by itself;;')
+                    self.info(str(self.caseid)+';'+'failed by itself;;')
+                    yield self.env.timeout(1)
                     self.state='is down'
-                    self.faultCounter+=1
-                    self.caseid = self.caseid + 1
-                    self.caseidPropagation()
+                    if(self.owner and self.owner.state!='is failing'):
+                        self.faultCounter+=1
+                        self.caseid = self.caseid + 1
+                        self.caseidPropagation()
                     yield self.env.timeout(1)
                     self.info(str(self.caseid-1)+';'+self.state+';;')
                     self.working = False
@@ -117,6 +119,7 @@ class Component(Loggable):
 
                             #yield self.env.timeout(1)
                             self.state = 'is down'
+                            self.faultStartTime=self.env.now
                             self.faultCounter+=1
                             yield self.env.timeout(1)
                             self.info(str(self.caseid-1)+';'+self.state + ';;')
@@ -180,6 +183,9 @@ class Component(Loggable):
                 #self.debug(str(self.caseid)+';'+'Its recovery makes the owner up;' + self.owner.getName() )
                 #yield self.env.timeout(1)
                 self.owner.process.interrupt(str(self.caseid)+';'+self.getName() + '(R)')
+            if(self.owner.state=='is failing'):
+                self.owner.state='is up'
+                self.owner.info(str(self.owner.caseid-1) + ';' + self.state + ';;')
 
     def upCaseidPropagation(self):
         if (self.owner and self.owner.caseid<self.caseid):
