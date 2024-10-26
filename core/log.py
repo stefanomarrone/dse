@@ -3,12 +3,16 @@ from core.boards import Blackboard, Configuration
 import sys
 
 class LoggerFactory():
+
     diction = {
-        'info': logging.INFO,
-        'critical': logging.CRITICAL,
         'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'value': logging.addLevelName(21, 'VALUE'),
+        'repair':logging.addLevelName(25, 'REPAIR'),
+        'warning': logging.WARNING,
         'error': logging.ERROR,
-        'warning': logging.WARNING
+        'critical': logging.CRITICAL
+
     }
 
     @staticmethod
@@ -56,3 +60,14 @@ class Loggable():
         tosend = str(self.env.now) + ';' + msg
         if sys.is_finalizing() == False:
             self.logger.error(tosend)
+
+    def value_acquired(self, msg):
+        tosend = str(self.env.now) + ';' + msg
+        if sys.is_finalizing() == False:
+            self.logger.log(21,tosend)
+    def maintenance_action(self, msg):
+        tosend = str(self.env.now) + ';' + msg
+        if sys.is_finalizing() == False:
+            self.logger.log(25,tosend)
+
+

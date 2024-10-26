@@ -1,6 +1,6 @@
 from core.boards import *
-from configparser import ConfigParser
 from core.executors import ExecutorFactory
+from configparser import ConfigParser
 
 class ConfigurationFactory(AbstractBoardFactory):
     def __init__(self):
@@ -29,6 +29,12 @@ class ConfigurationFactory(AbstractBoardFactory):
                         mttr, priority = tuple(reader[s][o].split(';'))
                         if self.processable(mttr):
                             value = self.process(mttr)
+                            #fix better
+                            '''
+                            struct=self.get('[' + s + ']structure')
+                            '''
+                            if(o !='top'):
+                                o=o.upper()
                         conf.put('[' + s + ']' + o + '_mttr',value)
                         if self.processable(priority):
                             value = self.process(priority)
@@ -80,6 +86,13 @@ class ConfigurationFactory(AbstractBoardFactory):
             for s in submodels:
                 temp = self.loadSection(reader,s)
                 conf.merge(temp)
+                for model,structure in temp.items():
+                    components= [comp[0] for comp in structure]
+                    conf.put('components', components)
+                    for c in components:
+                        temp = self.loadSection(reader, c)
+                        conf.merge(temp)
+
             signals = self.tolist(reader['main']['signals'])
             conf.put('signals', signals)
             for s in signals:
